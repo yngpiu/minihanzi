@@ -1,5 +1,7 @@
+import { useForm } from "@tanstack/react-form";
 import { Loader2, Plus } from "lucide-react";
 import { useState } from "react";
+import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
 	Dialog,
@@ -8,52 +10,92 @@ import {
 	DialogTitle,
 	DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+	Field,
+	FieldError,
+	FieldGroup,
+	FieldLabel,
+} from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddWord } from "@/hooks/queries";
 
+const addWordSchema = z.object({
+	hanzi: z
+		.string()
+		.trim()
+		.min(1, "Vui lòng nhập chữ Hán.")
+		.max(10, "Chữ Hán tối đa 10 ký tự."),
+	pinyin: z
+		.string()
+		.trim()
+		.min(1, "Vui lòng nhập pinyin.")
+		.max(50, "Pinyin tối đa 50 ký tự."),
+	meaning: z
+		.string()
+		.trim()
+		.min(1, "Vui lòng nhập nghĩa.")
+		.max(200, "Nghĩa tối đa 200 ký tự."),
+	radical: z.string().trim().max(20, "Bộ thủ tối đa 20 ký tự.").optional(),
+	etymology: z
+		.string()
+		.trim()
+		.max(500, "Chiết tự tối đa 500 ký tự.")
+		.optional(),
+	example: z
+		.string()
+		.trim()
+		.max(200, "Ví dụ tối đa 200 ký tự.")
+		.optional(),
+});
+
 export function AddWordDialog() {
 	const [open, setOpen] = useState(false);
-	const [hanzi, setHanzi] = useState("");
-	const [pinyin, setPinyin] = useState("");
-	const [meaning, setMeaning] = useState("");
-	const [radical, setRadical] = useState("");
-	const [etymology, setEtymology] = useState("");
-	const [example, setExample] = useState("");
-
 	const { mutate: addWord, isPending } = useAddWord();
 
-	function handleSubmit(e: React.FormEvent) {
-		e.preventDefault();
-		if (!hanzi.trim() || !pinyin.trim() || !meaning.trim()) return;
-		addWord(
-			{
-				hanzi: hanzi.trim(),
-				pinyin: pinyin.trim(),
-				meaning: meaning.trim(),
-				radical: radical.trim() || undefined,
-				etymology: etymology.trim() || undefined,
-				example: example.trim() || undefined,
-			},
-			{
-				onSuccess: () => {
-					setHanzi("");
-					setPinyin("");
-					setMeaning("");
-					setRadical("");
-					setEtymology("");
-					setExample("");
-					setOpen(false);
+	const form = useForm({
+		defaultValues: {
+			hanzi: "",
+			pinyin: "",
+			meaning: "",
+			radical: "",
+			etymology: "",
+			example: "",
+		},
+		validators: {
+			onSubmit: addWordSchema,
+		},
+		onSubmit: async ({ value }) => {
+			addWord(
+				{
+					hanzi: value.hanzi.trim(),
+					pinyin: value.pinyin.trim(),
+					meaning: value.meaning.trim(),
+					radical: value.radical?.trim() || undefined,
+					etymology: value.etymology?.trim() || undefined,
+					example: value.example?.trim() || undefined,
 				},
-			},
-		);
-	}
+				{
+					onSuccess: () => {
+						form.reset();
+						setOpen(false);
+					},
+				},
+			);
+		},
+	});
 
 	return (
-		<Dialog open={open} onOpenChange={setOpen}>
+		<Dialog
+			open={open}
+			onOpenChange={(v) => {
+				setOpen(v);
+				if (!v) form.reset();
+			}}
+		>
 			<DialogTrigger asChild>
 				<Button>
-					<Plus size={16} />
+					<Plus data-icon="inline-start" />
 					Thêm từ
 				</Button>
 			</DialogTrigger>
@@ -61,78 +103,182 @@ export function AddWordDialog() {
 				<DialogHeader>
 					<DialogTitle>Thêm từ vựng mới</DialogTitle>
 				</DialogHeader>
-				<form onSubmit={handleSubmit} className="space-y-4">
-					<div className="space-y-2">
-						<label className="text-sm font-medium" htmlFor="hanzi">
-							字 Chữ Hán <span className="text-destructive">*</span>
-						</label>
-						<Input
-							id="hanzi"
-							value={hanzi}
-							onChange={(e) => setHanzi(e.target.value)}
-							placeholder="Nhập chữ Hán..."
-							required
+				<form
+					onSubmit={(e) => {
+						e.preventDefault();
+						form.handleSubmit();
+					}}
+				>
+					<FieldGroup>
+						<form.Field
+							name="hanzi"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid || undefined}>
+										<FieldLabel htmlFor={field.name}>
+											字 Chữ Hán{" "}
+											<span className="text-destructive">*</span>
+										</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="Nhập chữ Hán..."
+											autoComplete="off"
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
 						/>
-					</div>
-					<div className="space-y-2">
-						<label className="text-sm font-medium" htmlFor="pinyin">
-							Pinyin <span className="text-destructive">*</span>
-						</label>
-						<Input
-							id="pinyin"
-							value={pinyin}
-							onChange={(e) => setPinyin(e.target.value)}
-							placeholder="Nhập pinyin..."
-							required
+
+						<form.Field
+							name="pinyin"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid || undefined}>
+										<FieldLabel htmlFor={field.name}>
+											Pinyin <span className="text-destructive">*</span>
+										</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="Nhập pinyin..."
+											autoComplete="off"
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
 						/>
-					</div>
-					<div className="space-y-2">
-						<label className="text-sm font-medium" htmlFor="meaning">
-							Nghĩa <span className="text-destructive">*</span>
-						</label>
-						<Input
-							id="meaning"
-							value={meaning}
-							onChange={(e) => setMeaning(e.target.value)}
-							placeholder="Nhập nghĩa tiếng Việt..."
-							required
+
+						<form.Field
+							name="meaning"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid || undefined}>
+										<FieldLabel htmlFor={field.name}>
+											Nghĩa <span className="text-destructive">*</span>
+										</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="Nhập nghĩa tiếng Việt..."
+											autoComplete="off"
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
 						/>
-					</div>
-					<div className="space-y-2">
-						<label className="text-sm font-medium" htmlFor="radical">
-							Bộ thủ cấu tạo
-						</label>
-						<Input
-							id="radical"
-							value={radical}
-							onChange={(e) => setRadical(e.target.value)}
-							placeholder="Ví dụ: 氵, 木, 口..."
+
+						<form.Field
+							name="radical"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid || undefined}>
+										<FieldLabel htmlFor={field.name}>
+											Bộ thủ cấu tạo
+										</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="Ví dụ: 氵, 木, 口..."
+											autoComplete="off"
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
 						/>
-					</div>
-					<div className="space-y-2">
-						<label className="text-sm font-medium" htmlFor="etymology">
-							Câu chuyện chiết tự
-						</label>
-						<Textarea
-							id="etymology"
-							value={etymology}
-							onChange={(e) => setEtymology(e.target.value)}
-							placeholder="Ghi chú về cách nhớ mặt chữ..."
-							rows={3}
+
+						<form.Field
+							name="etymology"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid || undefined}>
+										<FieldLabel htmlFor={field.name}>
+											Câu chuyện chiết tự
+										</FieldLabel>
+										<Textarea
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="Ghi chú về cách nhớ mặt chữ..."
+											rows={3}
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
 						/>
-					</div>
-					<div className="space-y-2">
-						<label className="text-sm font-medium" htmlFor="example">
-							Ví dụ
-						</label>
-						<Input
-							id="example"
-							value={example}
-							onChange={(e) => setExample(e.target.value)}
-							placeholder="Câu ví dụ..."
+
+						<form.Field
+							name="example"
+							children={(field) => {
+								const isInvalid =
+									field.state.meta.isTouched && !field.state.meta.isValid;
+								return (
+									<Field data-invalid={isInvalid || undefined}>
+										<FieldLabel htmlFor={field.name}>Ví dụ</FieldLabel>
+										<Input
+											id={field.name}
+											name={field.name}
+											value={field.state.value}
+											onBlur={field.handleBlur}
+											onChange={(e) => field.handleChange(e.target.value)}
+											aria-invalid={isInvalid}
+											placeholder="Câu ví dụ..."
+											autoComplete="off"
+										/>
+										{isInvalid && (
+											<FieldError errors={field.state.meta.errors} />
+										)}
+									</Field>
+								);
+							}}
 						/>
-					</div>
-					<div className="flex justify-end gap-2">
+					</FieldGroup>
+
+					<div className="flex justify-end gap-2 pt-4">
 						<Button
 							type="button"
 							variant="outline"
@@ -141,7 +287,7 @@ export function AddWordDialog() {
 							Huỷ
 						</Button>
 						<Button type="submit" disabled={isPending}>
-							{isPending && <Loader2 size={14} className="animate-spin" />}
+							{isPending && <Loader2 className="animate-spin" />}
 							Thêm vào kho
 						</Button>
 					</div>
