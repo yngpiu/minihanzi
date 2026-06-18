@@ -11,6 +11,7 @@
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as VocabularyRouteImport } from './routes/vocabulary'
 import { Route as ReviewRouteImport } from './routes/review'
+import { Route as PhoneticRouteImport } from './routes/phonetic'
 import { Route as DictionaryRouteImport } from './routes/dictionary'
 import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
@@ -23,6 +24,11 @@ const VocabularyRoute = VocabularyRouteImport.update({
 const ReviewRoute = ReviewRouteImport.update({
   id: '/review',
   path: '/review',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PhoneticRoute = PhoneticRouteImport.update({
+  id: '/phonetic',
+  path: '/phonetic',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DictionaryRoute = DictionaryRouteImport.update({
@@ -45,6 +51,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/dictionary': typeof DictionaryRoute
+  '/phonetic': typeof PhoneticRoute
   '/review': typeof ReviewRoute
   '/vocabulary': typeof VocabularyRoute
 }
@@ -52,6 +59,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/dictionary': typeof DictionaryRoute
+  '/phonetic': typeof PhoneticRoute
   '/review': typeof ReviewRoute
   '/vocabulary': typeof VocabularyRoute
 }
@@ -60,19 +68,33 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/analytics': typeof AnalyticsRoute
   '/dictionary': typeof DictionaryRoute
+  '/phonetic': typeof PhoneticRoute
   '/review': typeof ReviewRoute
   '/vocabulary': typeof VocabularyRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/analytics' | '/dictionary' | '/review' | '/vocabulary'
+  fullPaths:
+    | '/'
+    | '/analytics'
+    | '/dictionary'
+    | '/phonetic'
+    | '/review'
+    | '/vocabulary'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/analytics' | '/dictionary' | '/review' | '/vocabulary'
+  to:
+    | '/'
+    | '/analytics'
+    | '/dictionary'
+    | '/phonetic'
+    | '/review'
+    | '/vocabulary'
   id:
     | '__root__'
     | '/'
     | '/analytics'
     | '/dictionary'
+    | '/phonetic'
     | '/review'
     | '/vocabulary'
   fileRoutesById: FileRoutesById
@@ -81,6 +103,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AnalyticsRoute: typeof AnalyticsRoute
   DictionaryRoute: typeof DictionaryRoute
+  PhoneticRoute: typeof PhoneticRoute
   ReviewRoute: typeof ReviewRoute
   VocabularyRoute: typeof VocabularyRoute
 }
@@ -99,6 +122,13 @@ declare module '@tanstack/react-router' {
       path: '/review'
       fullPath: '/review'
       preLoaderRoute: typeof ReviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/phonetic': {
+      id: '/phonetic'
+      path: '/phonetic'
+      fullPath: '/phonetic'
+      preLoaderRoute: typeof PhoneticRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dictionary': {
@@ -129,6 +159,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AnalyticsRoute: AnalyticsRoute,
   DictionaryRoute: DictionaryRoute,
+  PhoneticRoute: PhoneticRoute,
   ReviewRoute: ReviewRoute,
   VocabularyRoute: VocabularyRoute,
 }

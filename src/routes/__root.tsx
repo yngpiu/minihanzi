@@ -10,6 +10,7 @@ import {
 	Moon,
 	Search,
 	Sun,
+	Table,
 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
@@ -194,6 +195,14 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 								<a href="/dictionary">
 									<Search size={16} />
 									<span>Tra từ</span>
+								</a>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+						<SidebarMenuItem>
+							<SidebarMenuButton asChild tooltip="Bảng phiên âm">
+								<a href="/phonetic">
+									<Table size={16} />
+									<span>Bảng phiên âm</span>
 								</a>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
