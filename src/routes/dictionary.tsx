@@ -28,9 +28,15 @@ function Dictionary() {
 
 	const queryToSearch = q ?? "";
 	const { data, isLoading, error } = useWordSearch(queryToSearch);
-	const results = data?.result?.filter((r) => r.word && r.search_all_means?.length) || [];
+	const results =
+		data?.result?.filter((r) => r.word && r.search_all_means?.length) || [];
 	const hasQuery = queryToSearch.trim().length > 0;
-	const notFound = hasQuery && !isLoading && !error && data && (!data.found || results.length === 0);
+	const notFound =
+		hasQuery &&
+		!isLoading &&
+		!error &&
+		data &&
+		(!data.found || results.length === 0);
 
 	const [active, setActive] = useState(0);
 	const [debounced, setDebounced] = useState("");
@@ -70,13 +76,16 @@ function Dictionary() {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
 
-	const search = useCallback((targetQ: string) => {
-		submittedRef.current = true;
-		setSearchValue(targetQ);
-		setActive(0);
-		setSuggestOpen(false);
-		nav({ search: targetQ ? { q: targetQ } : {} });
-	}, [setSearchValue, nav]);
+	const search = useCallback(
+		(targetQ: string) => {
+			submittedRef.current = true;
+			setSearchValue(targetQ);
+			setActive(0);
+			setSuggestOpen(false);
+			nav({ search: targetQ ? { q: targetQ } : {} });
+		},
+		[setSearchValue, nav],
+	);
 
 	function submit(q?: string) {
 		const target = q || trimmed;
@@ -110,9 +119,15 @@ function Dictionary() {
 							ref={inputRef}
 							placeholder="Nhập từ Hán (ví dụ: 你好, xiexie, bạn bè)..."
 							value={searchValue}
-							onChange={(e) => { submittedRef.current = false; setSearchValue(e.target.value); }}
+							onChange={(e) => {
+								submittedRef.current = false;
+								setSearchValue(e.target.value);
+							}}
 							onKeyDown={handleKeyDown}
-							onFocus={() => { if (searchValue.trim() && suggestItems.length > 0) setSuggestOpen(true); }}
+							onFocus={() => {
+								if (searchValue.trim() && suggestItems.length > 0)
+									setSuggestOpen(true);
+							}}
 							className="h-11 text-base"
 						/>
 						{suggestOpen && suggestItems.length > 0 && (
@@ -130,13 +145,24 @@ function Dictionary() {
 										onMouseEnter={() => setCursor(i)}
 										onClick={() => submit(item.word)}
 									>
-										<BookMarked size={13} className="mt-0.5 shrink-0 text-muted-foreground" />
+										<BookMarked
+											size={13}
+											className="mt-0.5 shrink-0 text-muted-foreground"
+										/>
 										<div className="min-w-0">
 											<div>
 												<span className="font-medium">{item.word}</span>
-												{item.pinyin && <span className="ml-1.5 text-xs text-muted-foreground">{item.pinyin}</span>}
+												{item.pinyin && (
+													<span className="ml-1.5 text-xs text-muted-foreground">
+														{item.pinyin}
+													</span>
+												)}
 											</div>
-											{item.meaning && <div className="text-xs text-muted-foreground truncate">{item.meaning}</div>}
+											{item.meaning && (
+												<div className="text-xs text-muted-foreground truncate">
+													{item.meaning}
+												</div>
+											)}
 										</div>
 									</button>
 								))}
@@ -152,12 +178,19 @@ function Dictionary() {
 			<div className="px-4 md:px-0 pt-4">
 				{!hasQuery ? (
 					<div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
-						<div aria-hidden className="text-7xl md:text-9xl font-serif text-primary/20 select-none">
+						<div
+							aria-hidden
+							className="text-7xl md:text-9xl font-serif text-primary/20 select-none"
+						>
 							汉字
 						</div>
 						<div className="space-y-2">
-							<h1 className="text-3xl font-bold tracking-tight">Từ điển Trung-Việt</h1>
-							<p className="text-muted-foreground">Tra nghĩa, pinyin, ví dụ câu và phân tích AI...</p>
+							<h1 className="text-3xl font-bold tracking-tight">
+								Từ điển Trung-Việt
+							</h1>
+							<p className="text-muted-foreground">
+								Tra nghĩa, pinyin, ví dụ câu và phân tích AI...
+							</p>
 						</div>
 						<div className="flex flex-wrap gap-2 justify-center">
 							{EXAMPLES.map((w) => (
@@ -192,9 +225,15 @@ function Dictionary() {
 
 						{notFound && (
 							<div className="flex flex-col items-center justify-center py-16 text-center">
-								<Search size={36} className="text-muted-foreground/50 mb-4" strokeWidth={1.5} />
+								<Search
+									size={36}
+									className="text-muted-foreground/50 mb-4"
+									strokeWidth={1.5}
+								/>
 								<p className="text-lg font-medium mb-1">Không tìm thấy</p>
-								<p className="text-sm text-muted-foreground">Không có kết quả cho <strong>{queryToSearch}</strong></p>
+								<p className="text-sm text-muted-foreground">
+									Không có kết quả cho <strong>{queryToSearch}</strong>
+								</p>
 							</div>
 						)}
 

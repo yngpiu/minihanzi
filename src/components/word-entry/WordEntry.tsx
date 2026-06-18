@@ -1,5 +1,6 @@
 import { BookOpen, Bot, GitCompare, Hash, Layers, Repeat } from "lucide-react";
 import { memo, useId, useState } from "react";
+import { AudioBtn } from "@/components/AudioBtn";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -13,8 +14,11 @@ import {
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useChatGPT, useKanjiSearch } from "@/hooks/queries";
 import type { WordResult } from "@/services/types";
-import { getImageUrl, getKaraokeTokens, getUniqueChars } from "@/services/utils";
-import { AudioBtn } from "@/components/AudioBtn";
+import {
+	getImageUrl,
+	getKaraokeTokens,
+	getUniqueChars,
+} from "@/services/utils";
 import { AIPanel } from "./AIPanel";
 import { ExItem } from "./ExItem";
 import { KanjiTile } from "./KanjiTile";
@@ -32,7 +36,8 @@ function WordEntryImpl({ word, onSearch }: Props) {
 	const chatGptQuery = useChatGPT(word.word, word.pinyin);
 	const hasAiData =
 		chatGptQuery.isLoading ||
-		(chatGptQuery.data?.found && (chatGptQuery.data?.result?.[0]?.chat_gpt?.length ?? 0) > 0);
+		(chatGptQuery.data?.found &&
+			(chatGptQuery.data?.result?.[0]?.chat_gpt?.length ?? 0) > 0);
 
 	const kanjiMap = new Map();
 	if (kanjiData) {
@@ -43,7 +48,8 @@ function WordEntryImpl({ word, onSearch }: Props) {
 		}
 	}
 
-	const wid = `w-${word._id || word.id || useId()}`;
+	const fallbackWid = useId();
+	const wid = `w-${word._id || word.id || fallbackWid}`;
 	const means = word.search_all_means || [];
 	const syno = word.snym?.syno || [];
 	const anto = word.snym?.anto || [];
@@ -56,7 +62,10 @@ function WordEntryImpl({ word, onSearch }: Props) {
 	const hasCompare = (word.compare || []).length > 0;
 	const hasSynoAnto = syno.length > 0 || anto.length > 0;
 	const hasGrammar = content.some((c) => (c.structs || []).length > 0);
-	const grammarCount = content.reduce((s, c) => s + (c.structs || []).length, 0);
+	const grammarCount = content.reduce(
+		(s, c) => s + (c.structs || []).length,
+		0,
+	);
 
 	const tabs = [
 		{
@@ -156,7 +165,6 @@ function WordEntryImpl({ word, onSearch }: Props) {
 							{word.lv_tocfl && (
 								<Badge variant="secondary">TOCFL {word.lv_tocfl}</Badge>
 							)}
-	
 						</div>
 					</div>
 
@@ -186,7 +194,10 @@ function WordEntryImpl({ word, onSearch }: Props) {
 										<span className="flex items-center gap-2">
 											{t.icon} {t.label}
 											{t.count > 0 && (
-												<Badge variant="secondary" className="ml-auto text-[10px] px-1.5 py-0">
+												<Badge
+													variant="secondary"
+													className="ml-auto text-[10px] px-1.5 py-0"
+												>
 													{t.count}
 												</Badge>
 											)}
@@ -213,20 +224,20 @@ function WordEntryImpl({ word, onSearch }: Props) {
 					</TabsList>
 
 					<TabsContent value="meaning" className="mt-0 space-y-4">
-					{means.length > 0 && content.length === 0 && (
-						<div className="flex flex-wrap gap-1.5">
-							{means.map((m) => (
-								<Badge key={m} variant="secondary" className="text-xs">
-									{m}
-								</Badge>
-							))}
-						</div>
-					)}
+						{means.length > 0 && content.length === 0 && (
+							<div className="flex flex-wrap gap-1.5">
+								{means.map((m) => (
+									<Badge key={m} variant="secondary" className="text-xs">
+										{m}
+									</Badge>
+								))}
+							</div>
+						)}
 
 						{content.length > 0 &&
 							content.map((c, ci) => (
 								<div key={ci} className="space-y-3">
-										{(c.means || []).map((m, mi) => (
+									{(c.means || []).map((m, mi) => (
 										<div key={mi} className="flex gap-3">
 											<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
 												{mi + 1}
@@ -249,7 +260,6 @@ function WordEntryImpl({ word, onSearch }: Props) {
 											</div>
 										</div>
 									))}
-
 								</div>
 							))}
 					</TabsContent>
@@ -377,7 +387,11 @@ function WordEntryImpl({ word, onSearch }: Props) {
 					</TabsContent>
 
 					<TabsContent value="ai" className="mt-0">
-						<AIPanel data={chatGptQuery.data} isLoading={chatGptQuery.isLoading} isError={chatGptQuery.isError} />
+						<AIPanel
+							data={chatGptQuery.data}
+							isLoading={chatGptQuery.isLoading}
+							isError={chatGptQuery.isError}
+						/>
 					</TabsContent>
 				</Tabs>
 			</CardContent>

@@ -38,9 +38,14 @@ function getTheme(): Theme {
 }
 
 function applyTheme(t: Theme) {
-	const isDark = t === "dark" || (t === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
+	const isDark =
+		t === "dark" ||
+		(t === "auto" && window.matchMedia("(prefers-color-scheme: dark)").matches);
 	document.documentElement.classList.toggle("dark", isDark);
-	document.documentElement.setAttribute("data-theme", isDark ? "dark" : "light");
+	document.documentElement.setAttribute(
+		"data-theme",
+		isDark ? "dark" : "light",
+	);
 	document.documentElement.style.colorScheme = isDark ? "dark" : "light";
 	localStorage.setItem("theme", t);
 }
@@ -91,7 +96,9 @@ function RootComponent() {
 							</main>
 
 							<footer className="border-t py-3 text-center text-xs text-muted-foreground">
-								<span>© {new Date().getFullYear()} Hanzier · Từ điển Trung-Việt</span>
+								<span>
+									© {new Date().getFullYear()} Hanzier · Từ điển Trung-Việt
+								</span>
 							</footer>
 						</SidebarInset>
 					</SidebarProvider>

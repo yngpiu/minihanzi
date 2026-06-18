@@ -19,7 +19,9 @@ export function createAudioPlayer(
 		if (containerId) {
 			document
 				.querySelectorAll(`#${CSS.escape(containerId)} .kc`)
-				.forEach((el) => el.classList.remove("kc"));
+				.forEach((el) => {
+					el.classList.remove("kc");
+				});
 		}
 	}
 

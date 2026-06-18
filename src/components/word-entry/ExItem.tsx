@@ -1,10 +1,11 @@
 import { useId } from "react";
+import { AudioBtn } from "@/components/AudioBtn";
 import type { Example } from "@/services/types";
 import { getKaraokeTokens } from "@/services/utils";
-import { AudioBtn } from "@/components/AudioBtn";
 
 export function ExItem({ ex }: { ex: Example }) {
-	const uid = `e-${ex._id || ex.id || useId()}`;
+	const fallbackId = useId();
+	const uid = `e-${ex._id || ex.id || fallbackId}`;
 	const tokens = ex.e ? getKaraokeTokens(ex.e) : [];
 	const py = ex.p || ex.p_cn || "";
 
