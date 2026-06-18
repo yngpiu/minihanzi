@@ -1,8 +1,18 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
 import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { Monitor, Moon, Search, Sun } from "lucide-react";
+import {
+	BarChart3,
+	BookMarked,
+	GraduationCap,
+	LayoutDashboard,
+	Monitor,
+	Moon,
+	Search,
+	Sun,
+} from "lucide-react";
 import { useEffect, useState } from "react";
+import { Badge } from "@/components/ui/badge";
 import {
 	DropdownMenu,
 	DropdownMenuContent,
@@ -135,6 +145,48 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 			</SidebarHeader>
 
 			<SidebarContent>
+				<SidebarGroup>
+					<SidebarMenu>
+						<SidebarMenuItem>
+							<SidebarMenuButton asChild tooltip="Dashboard">
+								<a href="/">
+									<LayoutDashboard size={16} />
+									<span>Dashboard</span>
+								</a>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+						<SidebarMenuItem>
+							<SidebarMenuButton asChild tooltip="Ôn tập">
+								<a href="/review">
+									<GraduationCap size={16} />
+									<span>Ôn tập</span>
+									<Badge
+										variant="outline"
+										className="ml-auto text-xs font-normal"
+									>
+										SRS
+									</Badge>
+								</a>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+						<SidebarMenuItem>
+							<SidebarMenuButton asChild tooltip="Kho từ vựng">
+								<a href="/vocabulary">
+									<BookMarked size={16} />
+									<span>Kho từ vựng</span>
+								</a>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+						<SidebarMenuItem>
+							<SidebarMenuButton asChild tooltip="Thống kê">
+								<a href="/analytics">
+									<BarChart3 size={16} />
+									<span>Thống kê</span>
+								</a>
+							</SidebarMenuButton>
+						</SidebarMenuItem>
+					</SidebarMenu>
+				</SidebarGroup>
 				<SidebarGroup>
 					<SidebarMenu>
 						<SidebarMenuItem>
