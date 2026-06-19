@@ -195,7 +195,7 @@ function Dictionary() {
 								{historyOpen &&
 									history.map((item, i) => (
 										<button
-											key={item.word}
+											key={"h-" + item.word}
 											type="button"
 											role="option"
 											aria-selected={i === cursor}
@@ -227,7 +227,7 @@ function Dictionary() {
 								{suggestOpen &&
 									suggestItems.map((item, i) => (
 										<button
-											key={item.word}
+											key={"s-" + item.word}
 											type="button"
 											role="option"
 											aria-selected={i === cursor}
