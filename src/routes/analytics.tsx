@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import {
 	Bar,
 	BarChart,
@@ -27,6 +27,7 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
+	useEffect(() => { document.title = "Thống kê - Minihanzi"; }, []);
 	const { data: logs } = useStudyLogs(365);
 	const { data: words } = useWords();
 

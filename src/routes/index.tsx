@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowLeft, BookMarked, GraduationCap, Library } from "lucide-react";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
 	Bar,
 	BarChart,
@@ -32,6 +32,7 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
+	useEffect(() => { document.title = "Dashboard - Minihanzi"; }, []);
 	const { data: stats, isLoading, error } = useDashboardStats();
 	const { data: logs } = useStudyLogs(30);
 	const { data: words } = useWords();

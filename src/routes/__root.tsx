@@ -1,5 +1,5 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, Outlet, useRouter } from "@tanstack/react-router";
+import { createRootRoute, Link, Outlet, useRouter } from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import {
 	BarChart3,
@@ -106,11 +106,6 @@ function RootComponent() {
 								<Outlet />
 							</main>
 
-							<footer className="border-t py-3 text-center text-xs text-muted-foreground">
-								<span>
-									© {new Date().getFullYear()} Hanzier · Từ điển Trung-Việt
-								</span>
-							</footer>
 						</SidebarInset>
 					</SidebarProvider>
 				</TooltipProvider>
@@ -131,7 +126,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarMenu>
 					<SidebarMenuItem>
 						<SidebarMenuButton size="lg" asChild>
-							<a href="/">
+							<Link to="/">
 								<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-lg">
 									漢
 								</div>
@@ -139,7 +134,7 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									<span className="truncate font-semibold">Hanzier</span>
 									<span className="truncate text-xs">Từ điển Trung-Việt</span>
 								</div>
-							</a>
+							</Link>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
@@ -150,15 +145,15 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild tooltip="Dashboard">
-								<a href="/">
+								<Link to="/">
 									<LayoutDashboard size={16} />
 									<span>Dashboard</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild tooltip="Ôn tập">
-								<a href="/review">
+								<Link to="/review">
 									<GraduationCap size={16} />
 									<span>Ôn tập</span>
 									<Badge
@@ -167,23 +162,23 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 									>
 										SRS
 									</Badge>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild tooltip="Kho từ vựng">
-								<a href="/vocabulary">
+								<Link to="/vocabulary">
 									<BookMarked size={16} />
 									<span>Kho từ vựng</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild tooltip="Thống kê">
-								<a href="/analytics">
+								<Link to="/analytics">
 									<BarChart3 size={16} />
 									<span>Thống kê</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					</SidebarMenu>
@@ -192,18 +187,18 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 					<SidebarMenu>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild tooltip="Tra từ">
-								<a href="/dictionary">
+								<Link to="/dictionary">
 									<Search size={16} />
 									<span>Tra từ</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
 							<SidebarMenuButton asChild tooltip="Bảng phiên âm">
-								<a href="/phonetic">
+								<Link to="/phonetic">
 									<Table size={16} />
 									<span>Bảng phiên âm</span>
-								</a>
+								</Link>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					</SidebarMenu>

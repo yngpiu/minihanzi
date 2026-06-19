@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { Flashcard } from "@/components/features/Flashcard";
 
 export const Route = createFileRoute("/review")({
@@ -6,6 +7,7 @@ export const Route = createFileRoute("/review")({
 });
 
 function ReviewPage() {
+	useEffect(() => { document.title = "Ôn tập - Minihanzi"; }, []);
 	return (
 		<div className="space-y-6 p-4 md:p-6 max-w-4xl mx-auto">
 			<div>
