@@ -6,11 +6,6 @@ let aesKey: CryptoKey | null = null;
 
 async function getAesKey(): Promise<CryptoKey> {
 	if (aesKey) return aesKey;
-	if (!crypto?.subtle) {
-		throw new Error(
-			"Web Crypto API không khả dụng. Trang cần chạy qua HTTPS.",
-		);
-	}
 	const r = Uint8Array.from(atob(SECRET_KEY), (c) => c.charCodeAt(0));
 	r.reverse();
 	const pwd = new TextEncoder().encode(PASSWORD);
