@@ -160,7 +160,7 @@ function Dictionary() {
 		<div className="mx-auto max-w-5xl">
 			<div className="pt-4 pb-3 px-4 md:px-0">
 				<div className="flex gap-2">
-					<div ref={wrapRef} className="relative flex-1">
+					<div ref={wrapRef} className="relative flex-1 scroll-mt-20">
 						<Input
 							ref={inputRef}
 							placeholder="Nhập từ Hán (ví dụ: 你好, xiexie, bạn bè)..."
