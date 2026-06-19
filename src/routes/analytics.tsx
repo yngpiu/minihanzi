@@ -39,9 +39,6 @@ function AnalyticsPage() {
 		<div className="space-y-6 p-4 md:p-6 max-w-5xl mx-auto">
 			<div>
 				<h1 className="text-2xl font-bold tracking-tight">Thống kê</h1>
-				<p className="text-sm text-muted-foreground">
-					Phân tích tiến độ học tập
-				</p>
 			</div>
 
 			<div className="grid gap-6 md:grid-cols-2">

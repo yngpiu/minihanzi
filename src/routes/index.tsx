@@ -66,9 +66,6 @@ function Dashboard() {
 					<h1 className="text-2xl font-bold tracking-tight">
 						{reviewing ? "Ôn tập" : "Dashboard"}
 					</h1>
-					<p className="text-sm text-muted-foreground">
-						{reviewing ? "Lật thẻ và đánh giá" : "Tổng quan việc học của bạn"}
-					</p>
 				</div>
 				{reviewing && (
 					<Button variant="ghost" onClick={() => setReviewing(false)}>
@@ -129,9 +126,6 @@ function Dashboard() {
 								<h2 className="text-xl font-semibold">
 									Chào mừng đến với Hanzier!
 								</h2>
-								<p className="text-sm text-muted-foreground text-center max-w-sm">
-									Bắt đầu bằng cách thêm từ vựng đầu tiên của bạn vào kho.
-								</p>
 								<Link to="/vocabulary">
 									<Button size="lg">
 										<BookMarked size={16} />

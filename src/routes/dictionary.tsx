@@ -274,13 +274,10 @@ function Dictionary() {
 						>
 							汉字
 						</div>
-						<div className="space-y-2">
+						<div>
 							<h1 className="text-3xl font-bold tracking-tight">
 								Từ điển Trung-Việt
 							</h1>
-							<p className="text-muted-foreground">
-								Tra nghĩa, pinyin, ví dụ câu và phân tích AI...
-							</p>
 						</div>
 						<div className="flex flex-wrap gap-2 justify-center">
 							{EXAMPLES.map((w) => (

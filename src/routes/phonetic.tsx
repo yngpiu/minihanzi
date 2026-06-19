@@ -145,12 +145,9 @@ function PhoneticPage() {
 	return (
 		<HighlightCtx.Provider value={api}>
 			<div className="p-4 md:p-6">
-				<h1 className="text-2xl font-bold tracking-tight mb-1">
+				<h1 className="text-2xl font-bold tracking-tight mb-6">
 					Bảng phiên âm
 				</h1>
-				<p className="text-sm text-muted-foreground mb-6">
-					Bảng pinyin tiếng Trung — nhấp vào ô để nghe các thanh điệu
-				</p>
 
 				<div className="overflow-x-auto rounded-lg border">
 					{/* biome-ignore lint/a11y/noStaticElementInteractions lint/a11y/useKeyWithMouseEvents: delegated hover highlight */}
