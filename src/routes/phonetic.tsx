@@ -1,8 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Play } from "lucide-react";
-import type React from "react";
 import {
 	createContext,
+	type MouseEvent,
 	memo,
 	useCallback,
 	useContext,
@@ -122,7 +122,7 @@ function PhoneticPage() {
 	);
 
 	const handleOver = useCallback(
-		(e: React.MouseEvent) => {
+		(e: MouseEvent) => {
 			const cell = (e.target as HTMLElement).closest<HTMLElement>("[data-r]");
 			if (!cell) return;
 			const r = cell.dataset.r;
