@@ -32,7 +32,9 @@ export const Route = createFileRoute("/")({
 });
 
 function Dashboard() {
-	useEffect(() => { document.title = "Dashboard - Minihanzi"; }, []);
+	useEffect(() => {
+		document.title = "Dashboard - Minihanzi";
+	}, []);
 	const { data: stats, isLoading, error } = useDashboardStats();
 	const { data: logs } = useStudyLogs(30);
 	const { data: words } = useWords();

@@ -1,5 +1,6 @@
 export { queryKeys } from "./queryKeys";
 export { useAddWord } from "./useAddWord";
+export { useAIEnrich } from "./useAIEnrich";
 export { useChatGPT } from "./useChatGPT";
 export { useDashboardStats } from "./useDashboardStats";
 export { useDeleteWord } from "./useDeleteWord";

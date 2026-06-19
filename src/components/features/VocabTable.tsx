@@ -21,6 +21,7 @@ import { useDeleteWord, useWords } from "@/hooks/queries";
 import { getMasteryInfo, getMasteryLevel } from "@/lib/srs";
 import type { WordWithReview } from "@/lib/types";
 import { AddWordDialog } from "./AddWordDialog";
+import { AIAddWordDialog } from "./AIAddWordDialog";
 import { WordDetailDialog } from "./WordDetailDialog";
 
 type FilterValue =
@@ -160,6 +161,7 @@ export function VocabTable() {
 					</Button>
 
 					<AddWordDialog />
+					<AIAddWordDialog />
 				</div>
 
 				{filtered.length === 0 ? (
@@ -334,7 +336,9 @@ function VocabRow({
 				</span>
 			</td>
 			<td className="p-3 hidden md:table-cell text-muted-foreground">
-				{word.radical || "—"}
+				{word.radical_components && word.radical_components.length > 0
+					? word.radical_components.map((c) => c.char).join(" ")
+					: word.radical || "—"}
 			</td>
 			<td className="p-3 hidden sm:table-cell">
 				<Badge variant={info.variant}>{info.label}</Badge>

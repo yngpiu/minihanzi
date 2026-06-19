@@ -1,11 +1,27 @@
+export interface RadicalNode {
+	char: string;
+	pinyin: string;
+	meaning: string;
+	role: string;
+	children?: RadicalNode[];
+}
+
+export interface ExampleData {
+	hanzi: string;
+	pinyin: string;
+	meaning: string;
+}
+
 export interface Word {
 	id: string;
 	hanzi: string;
 	pinyin: string;
 	meaning: string;
 	radical: string | null;
+	radical_components: RadicalNode[] | null;
 	etymology: string | null;
 	example: string | null;
+	example_data: ExampleData | null;
 	tags: string[];
 	created_at: string;
 	updated_at: string;

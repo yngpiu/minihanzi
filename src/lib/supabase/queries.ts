@@ -1,6 +1,8 @@
 import { applySRSGrade, type SRSGrade } from "@/lib/srs";
 import type {
 	DashboardStats,
+	ExampleData,
+	RadicalNode,
 	StudyLog,
 	UserSettings,
 	Word,
@@ -47,8 +49,10 @@ export async function addWord(fields: {
 	pinyin: string;
 	meaning: string;
 	radical?: string;
+	radical_components?: RadicalNode[];
 	etymology?: string;
 	example?: string;
+	example_data?: ExampleData;
 	tags?: string[];
 }): Promise<Word> {
 	const res = await supabaseClient
@@ -58,8 +62,10 @@ export async function addWord(fields: {
 			pinyin: fields.pinyin,
 			meaning: fields.meaning,
 			radical: fields.radical ?? null,
+			radical_components: fields.radical_components ?? [],
 			etymology: fields.etymology ?? null,
 			example: fields.example ?? null,
+			example_data: fields.example_data ?? null,
 			tags: fields.tags ?? [],
 		})
 		.select()
@@ -89,8 +95,10 @@ export async function updateWord(
 		pinyin: string;
 		meaning: string;
 		radical: string;
+		radical_components: RadicalNode[];
 		etymology: string;
 		example: string;
+		example_data: ExampleData;
 		tags: string[];
 	}>,
 ): Promise<Word | null> {

@@ -85,7 +85,9 @@ async function playAudio(url: string | null) {
 }
 
 function PhoneticPage() {
-	useEffect(() => { document.title = "Bảng phiên âm - Minihanzi"; }, []);
+	useEffect(() => {
+		document.title = "Bảng phiên âm - Minihanzi";
+	}, []);
 	const gridRef = useRef<HTMLDivElement>(null);
 	const state = usePhoneticData();
 

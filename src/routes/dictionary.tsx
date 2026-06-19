@@ -48,7 +48,9 @@ function saveHistory(item: HistoryItem): HistoryItem[] {
 }
 
 function Dictionary() {
-	useEffect(() => { document.title = "Từ điển Trung-Việt - Minihanzi"; }, []);
+	useEffect(() => {
+		document.title = "Từ điển Trung-Việt - Minihanzi";
+	}, []);
 	const nav = useNavigate({ from: "/dictionary" });
 	const { q } = Route.useSearch();
 	const { searchValue, setSearchValue } = useSearchContext();

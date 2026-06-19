@@ -43,6 +43,9 @@ const addWordSchema = z.object({
 		.max(500, "Chiết tự tối đa 500 ký tự.")
 		.optional(),
 	example: z.string().trim().max(200, "Ví dụ tối đa 200 ký tự.").optional(),
+	example_hanzi: z.string().trim().max(200).optional(),
+	example_pinyin: z.string().trim().max(200).optional(),
+	example_meaning: z.string().trim().max(200).optional(),
 });
 
 export function AddWordDialog() {
@@ -57,11 +60,24 @@ export function AddWordDialog() {
 			radical: "",
 			etymology: "",
 			example: "",
+			example_hanzi: "",
+			example_pinyin: "",
+			example_meaning: "",
 		},
 		validators: {
 			onSubmit: addWordSchema,
 		},
 		onSubmit: async ({ value }) => {
+			const exampleData =
+				value.example_hanzi?.trim() ||
+				value.example_pinyin?.trim() ||
+				value.example_meaning?.trim()
+					? {
+							hanzi: value.example_hanzi?.trim() ?? "",
+							pinyin: value.example_pinyin?.trim() ?? "",
+							meaning: value.example_meaning?.trim() ?? "",
+						}
+					: undefined;
 			addWord(
 				{
 					hanzi: value.hanzi.trim(),
@@ -70,6 +86,7 @@ export function AddWordDialog() {
 					radical: value.radical?.trim() || undefined,
 					etymology: value.etymology?.trim() || undefined,
 					example: value.example?.trim() || undefined,
+					example_data: exampleData,
 				},
 				{
 					onSuccess: () => {
@@ -251,7 +268,9 @@ export function AddWordDialog() {
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid || undefined}>
-										<FieldLabel htmlFor={field.name}>Ví dụ</FieldLabel>
+										<FieldLabel htmlFor={field.name}>
+											Ví dụ (dạng text)
+										</FieldLabel>
 										<Input
 											id={field.name}
 											name={field.name}
@@ -268,6 +287,64 @@ export function AddWordDialog() {
 									</Field>
 								);
 							}}
+						/>
+
+						<p className="text-xs text-muted-foreground">
+							Hoặc nhập ví dụ chi tiết:
+						</p>
+
+						<form.Field
+							name="example_hanzi"
+							children={(field) => (
+								<Field>
+									<FieldLabel htmlFor={field.name}>Ví dụ — Chữ Hán</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Chữ Hán..."
+										autoComplete="off"
+									/>
+								</Field>
+							)}
+						/>
+
+						<form.Field
+							name="example_pinyin"
+							children={(field) => (
+								<Field>
+									<FieldLabel htmlFor={field.name}>Ví dụ — Pinyin</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Pinyin..."
+										autoComplete="off"
+									/>
+								</Field>
+							)}
+						/>
+
+						<form.Field
+							name="example_meaning"
+							children={(field) => (
+								<Field>
+									<FieldLabel htmlFor={field.name}>Ví dụ — Nghĩa</FieldLabel>
+									<Input
+										id={field.name}
+										name={field.name}
+										value={field.state.value}
+										onBlur={field.handleBlur}
+										onChange={(e) => field.handleChange(e.target.value)}
+										placeholder="Nghĩa..."
+										autoComplete="off"
+									/>
+								</Field>
+							)}
 						/>
 					</FieldGroup>
 

@@ -27,7 +27,9 @@ export const Route = createFileRoute("/analytics")({
 });
 
 function AnalyticsPage() {
-	useEffect(() => { document.title = "Thống kê - Minihanzi"; }, []);
+	useEffect(() => {
+		document.title = "Thống kê - Minihanzi";
+	}, []);
 	const { data: logs } = useStudyLogs(365);
 	const { data: words } = useWords();
 
