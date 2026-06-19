@@ -1,6 +1,10 @@
+const PROXY_RE = /^\/proxy\/[^/]+/;
+
 export function buildApiUrl(base: string, path: string): string {
 	if (import.meta.env.DEV) return path;
-	return `${base}${path}`;
+	// Strip dev proxy prefix (/proxy/hanzii-word, /proxy/hanzii-suggest, ...)
+	const actual = path.replace(PROXY_RE, "");
+	return `${base}${actual}`;
 }
 
 export async function fetchWithRetry(
