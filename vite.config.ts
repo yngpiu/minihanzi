@@ -14,6 +14,31 @@ const config = defineConfig({
 		tanstackRouter({ target: "react", autoCodeSplitting: true }),
 		viteReact(),
 	],
+	server: {
+		port: 3000,
+		proxy: {
+			"/proxy/hanzii-word": {
+				target: "https://api2.hanzii.net",
+				changeOrigin: true,
+				rewrite: (p) => p.replace(/^\/proxy\/hanzii-word/, ""),
+			},
+			"/proxy/hanzii-kanji": {
+				target: "https://api2.hanzii.net",
+				changeOrigin: true,
+				rewrite: (p) => p.replace(/^\/proxy\/hanzii-kanji/, ""),
+			},
+			"/proxy/hanzii-suggest": {
+				target: "https://suggest.hanzii.net",
+				changeOrigin: true,
+				rewrite: (p) => p.replace(/^\/proxy\/hanzii-suggest/, ""),
+			},
+			"/proxy/hanzii-chatgpt": {
+				target: "https://api.hanzii.net",
+				changeOrigin: true,
+				rewrite: (p) => p.replace(/^\/proxy\/hanzii-chatgpt/, ""),
+			},
+		},
+	},
 });
 
 export default config;

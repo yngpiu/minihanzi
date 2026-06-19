@@ -1,5 +1,5 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { AlertCircle, BookMarked, Search } from "lucide-react";
+import { AlertCircle, BookMarked, Clock, Search } from "lucide-react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Badge } from "@/components/ui/badge";
@@ -20,6 +20,32 @@ export const Route = createFileRoute("/dictionary")({
 });
 
 const EXAMPLES = ["你好", "谢谢", "爱情", "朋友", "学习", "中国"];
+
+interface HistoryItem {
+	word: string;
+	pinyin?: string;
+	meaning?: string;
+}
+
+const HISTORY_KEY = "search-history";
+const MAX_HISTORY = 10;
+
+function getHistory(): HistoryItem[] {
+	try {
+		const raw = localStorage.getItem(HISTORY_KEY);
+		return raw ? JSON.parse(raw) : [];
+	} catch {
+		return [];
+	}
+}
+
+function saveHistory(item: HistoryItem): HistoryItem[] {
+	const history = getHistory();
+	const filtered = history.filter((h) => h.word !== item.word);
+	const updated = [item, ...filtered].slice(0, MAX_HISTORY);
+	localStorage.setItem(HISTORY_KEY, JSON.stringify(updated));
+	return updated;
+}
 
 function Dictionary() {
 	const nav = useNavigate({ from: "/dictionary" });
@@ -45,6 +71,8 @@ function Dictionary() {
 	const inputRef = useRef<HTMLInputElement>(null);
 	const wrapRef = useRef<HTMLDivElement>(null);
 	const submittedRef = useRef(false);
+	const [history, setHistory] = useState<HistoryItem[]>(() => getHistory());
+	const [historyOpen, setHistoryOpen] = useState(false);
 
 	const trimmed = searchValue.trim();
 
@@ -55,6 +83,8 @@ function Dictionary() {
 
 	const { data: suggestData } = useSuggest(debounced);
 	const suggestItems = suggestData || [];
+	const suggestItemsRef = useRef(suggestItems);
+	suggestItemsRef.current = suggestItems;
 
 	useEffect(() => {
 		if (submittedRef.current) return;
@@ -70,11 +100,16 @@ function Dictionary() {
 		function handleClickOutside(e: MouseEvent) {
 			if (wrapRef.current && !wrapRef.current.contains(e.target as Node)) {
 				setSuggestOpen(false);
+				setHistoryOpen(false);
 			}
 		}
 		document.addEventListener("mousedown", handleClickOutside);
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, []);
+
+	useEffect(() => {
+		if (trimmed.length > 0) setHistoryOpen(false);
+	}, [trimmed]);
 
 	const search = useCallback(
 		(targetQ: string) => {
@@ -82,6 +117,12 @@ function Dictionary() {
 			setSearchValue(targetQ);
 			setActive(0);
 			setSuggestOpen(false);
+			setHistoryOpen(false);
+			if (targetQ) {
+				const found = suggestItemsRef.current.find((s) => s.word === targetQ);
+				const updated = saveHistory(found ?? { word: targetQ });
+				setHistory(updated);
+			}
 			nav({ search: targetQ ? { q: targetQ } : {} });
 		},
 		[setSearchValue, nav],
@@ -95,18 +136,23 @@ function Dictionary() {
 	function handleKeyDown(e: React.KeyboardEvent) {
 		if (e.key === "ArrowDown") {
 			e.preventDefault();
-			setCursor((prev) => Math.min(prev + 1, suggestItems.length - 1));
+			const items = historyOpen ? history : suggestItems;
+			setCursor((prev) => Math.min(prev + 1, items.length - 1));
 		} else if (e.key === "ArrowUp") {
 			e.preventDefault();
 			setCursor((prev) => Math.max(prev - 1, 0));
 		} else if (e.key === "Enter") {
-			if (cursor >= 0 && cursor < suggestItems.length) {
-				submit(suggestItems[cursor].word);
+			if (cursor >= 0) {
+				const word = historyOpen
+					? history[cursor]?.word
+					: suggestItems[cursor]?.word;
+				if (word) submit(word);
 			} else {
 				submit();
 			}
 		} else if (e.key === "Escape") {
 			setSuggestOpen(false);
+			setHistoryOpen(false);
 		}
 	}
 
@@ -122,50 +168,93 @@ function Dictionary() {
 							onChange={(e) => {
 								submittedRef.current = false;
 								setSearchValue(e.target.value);
+								if (!e.target.value.trim() && history.length > 0) {
+									setHistoryOpen(true);
+									setCursor(-1);
+								}
 							}}
 							onKeyDown={handleKeyDown}
 							onFocus={() => {
-								if (searchValue.trim() && suggestItems.length > 0)
+								if (searchValue.trim() && suggestItems.length > 0) {
 									setSuggestOpen(true);
+									setCursor(-1);
+								} else if (!searchValue.trim() && history.length > 0) {
+									setHistoryOpen(true);
+									setCursor(-1);
+								}
 							}}
 							className="h-11 text-base"
 						/>
-						{suggestOpen && suggestItems.length > 0 && (
+						{((suggestOpen && suggestItems.length > 0) ||
+							(historyOpen && history.length > 0)) && (
 							<div
-								className="scrollbar-thin absolute top-full left-0 right-0 z-20 mt-1 rounded-lg border bg-popover text-popover-foreground shadow-lg max-h-60 overflow-y-auto"
+								className="scrollbar-thin absolute top-full left-0 right-0 z-20 mt-1 rounded-lg border bg-popover text-popover-foreground shadow-lg max-h-90 overflow-y-auto"
 								role="listbox"
 							>
-								{suggestItems.map((item, i) => (
-									<button
-										key={item.word}
-										type="button"
-										role="option"
-										aria-selected={i === cursor}
-										className={`flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground ${i === cursor ? "bg-accent" : ""}`}
-										onMouseEnter={() => setCursor(i)}
-										onClick={() => submit(item.word)}
-									>
-										<BookMarked
-											size={13}
-											className="mt-0.5 shrink-0 text-muted-foreground"
-										/>
-										<div className="min-w-0">
-											<div>
-												<span className="font-medium">{item.word}</span>
-												{item.pinyin && (
-													<span className="ml-1.5 text-xs text-muted-foreground">
-														{item.pinyin}
-													</span>
+								{historyOpen &&
+									history.map((item, i) => (
+										<button
+											key={item.word}
+											type="button"
+											role="option"
+											aria-selected={i === cursor}
+											className={`flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground ${i === cursor ? "bg-accent" : ""}`}
+											onMouseEnter={() => setCursor(i)}
+											onClick={() => submit(item.word)}
+										>
+											<Clock
+												size={13}
+												className="mt-0.5 shrink-0 text-muted-foreground"
+											/>
+											<div className="min-w-0">
+												<div>
+													<span className="font-medium">{item.word}</span>
+													{item.pinyin && (
+														<span className="ml-1.5 text-xs text-muted-foreground">
+															{item.pinyin}
+														</span>
+													)}
+												</div>
+												{item.meaning && (
+													<div className="text-xs text-muted-foreground truncate">
+														{item.meaning}
+													</div>
 												)}
 											</div>
-											{item.meaning && (
-												<div className="text-xs text-muted-foreground truncate">
-													{item.meaning}
+										</button>
+									))}
+								{suggestOpen &&
+									suggestItems.map((item, i) => (
+										<button
+											key={item.word}
+											type="button"
+											role="option"
+											aria-selected={i === cursor}
+											className={`flex w-full items-start gap-2 px-3 py-2 text-left text-sm transition-colors hover:bg-accent hover:text-accent-foreground aria-selected:bg-accent aria-selected:text-accent-foreground ${i === cursor ? "bg-accent" : ""}`}
+											onMouseEnter={() => setCursor(i)}
+											onClick={() => submit(item.word)}
+										>
+											<BookMarked
+												size={13}
+												className="mt-0.5 shrink-0 text-muted-foreground"
+											/>
+											<div className="min-w-0">
+												<div>
+													<span className="font-medium">{item.word}</span>
+													{item.pinyin && (
+														<span className="ml-1.5 text-xs text-muted-foreground">
+															{item.pinyin}
+														</span>
+													)}
 												</div>
-											)}
-										</div>
-									</button>
-								))}
+												{item.meaning && (
+													<div className="text-xs text-muted-foreground truncate">
+														{item.meaning}
+													</div>
+												)}
+											</div>
+										</button>
+									))}
 							</div>
 						)}
 					</div>
