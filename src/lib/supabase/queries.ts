@@ -1,4 +1,11 @@
-import { applySRSGrade, type SRSGrade } from "@/lib/srs";
+import {
+	cardToDb,
+	createDefaultCard,
+	dbToCard,
+	type FSRSCard,
+	type FSRSGrade,
+	gradeCard,
+} from "@/lib/fsrs";
 import type {
 	DashboardStats,
 	ExampleData,
@@ -6,6 +13,7 @@ import type {
 	StudyLog,
 	UserSettings,
 	Word,
+	WordReview,
 	WordWithReview,
 } from "@/lib/types";
 import { supabaseClient } from "./client";
@@ -74,9 +82,12 @@ export async function addWord(fields: {
 
 	const word = res.data as Word;
 
+	const card = createDefaultCard();
+	const dbFields = cardToDb(card);
+
 	const reviewRes = await supabaseClient.from("word_reviews").insert({
 		word_id: word.id,
-		interval_level: 0,
+		...dbFields,
 		next_review_at: new Date().toISOString(),
 	});
 	throwOnError("addWord:review", reviewRes);
@@ -117,14 +128,14 @@ export async function deleteWord(id: string): Promise<void> {
 	throwOnError("deleteWord", res);
 }
 
-// ─── Review / SRS ─────────────────────────────────────
+// ─── Review / FSRS ────────────────────────────────────
 
 export async function getDueWords(): Promise<WordWithReview[]> {
 	const now = new Date().toISOString();
 
 	const { data: reviews, error: reviewsError } = await supabaseClient
 		.from("word_reviews")
-		.select("word_id")
+		.select("word_id, stability")
 		.lte("next_review_at", now);
 	if (reviewsError)
 		throw new Error(`Supabase [getDueWords:reviews]: ${reviewsError.message}`);
@@ -138,12 +149,20 @@ export async function getDueWords(): Promise<WordWithReview[]> {
 		.in("id", ids);
 	if (error) throw new Error(`Supabase [getDueWords:words]: ${error.message}`);
 
-	return (data ?? []) as WordWithReview[];
+	const words = (data ?? []) as WordWithReview[];
+
+	words.sort((a, b) => {
+		const sa = a.word_review?.stability ?? 0;
+		const sb = b.word_review?.stability ?? 0;
+		return sa - sb;
+	});
+
+	return words;
 }
 
 export async function reviewWord(
 	wordId: string,
-	grade: SRSGrade,
+	grade: FSRSGrade,
 ): Promise<void> {
 	const reviewRes = await supabaseClient
 		.from("word_reviews")
@@ -152,22 +171,15 @@ export async function reviewWord(
 		.single();
 	throwOnError("reviewWord:get", reviewRes);
 
-	const review = reviewRes.data as {
-		id: string;
-		interval_level: number;
-		total_reviews: number;
-	};
+	const review = reviewRes.data as WordReview;
 
-	const result = applySRSGrade(grade, review.interval_level);
+	const card: FSRSCard = dbToCard(review);
+	const { card: nextCard } = gradeCard(card, grade);
+	const dbFields = cardToDb(nextCard);
 
 	const updateRes = await supabaseClient
 		.from("word_reviews")
-		.update({
-			interval_level: result.intervalLevel,
-			next_review_at: result.nextReviewAt.toISOString(),
-			last_reviewed: result.lastReviewed.toISOString(),
-			total_reviews: review.total_reviews + 1,
-		})
+		.update(dbFields)
 		.eq("id", review.id);
 	throwOnError("reviewWord:update", updateRes);
 

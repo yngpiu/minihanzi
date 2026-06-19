@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { KanjiTile } from "@/components/word-entry/KanjiTile";
-import { getMasteryInfo, getMasteryLevel } from "@/lib/srs";
+import { getMasteryInfo, reviewToMasteryLevel } from "@/lib/fsrs";
 import type { WordWithReview } from "@/lib/types";
 import { ExampleDisplay } from "./ExampleDisplay";
 import { RadicalTree } from "./RadicalTree";
@@ -38,10 +38,7 @@ export function WordDetailDialog({ word, open, onOpenChange }: Props) {
 	if (!word) return null;
 
 	const review = word.word_review;
-	const level = getMasteryLevel(
-		review?.interval_level ?? 0,
-		review?.total_reviews ?? 0,
-	);
+	const level = reviewToMasteryLevel(review);
 	const info = getMasteryInfo(level);
 	const nextReview = review?.next_review_at;
 	const isOverdue = nextReview && new Date(nextReview) <= new Date();

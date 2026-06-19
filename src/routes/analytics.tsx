@@ -19,8 +19,8 @@ import {
 	ChartTooltipContent,
 } from "@/components/ui/chart";
 import { useStudyLogs, useWords } from "@/hooks/queries";
-import { getMasteryLevel } from "@/lib/srs";
-import type { StudyLog } from "@/lib/types";
+import { reviewToMasteryLevel } from "@/lib/fsrs";
+import type { StudyLog, WordWithReview } from "@/lib/types";
 
 export const Route = createFileRoute("/analytics")({
 	component: AnalyticsPage,
@@ -226,11 +226,7 @@ function buildBarData(logs: StudyLog[]) {
 	return days;
 }
 
-function buildMasteryData(
-	words: {
-		word_review: { interval_level: number; total_reviews: number } | null;
-	}[],
-) {
+function buildMasteryData(words: WordWithReview[]) {
 	const counts: Record<string, number> = {
 		unstudied: 0,
 		learning: 0,
@@ -239,11 +235,8 @@ function buildMasteryData(
 		mastered: 0,
 	};
 
-	for (const w of words) {
-		const level = getMasteryLevel(
-			w.word_review?.interval_level ?? 0,
-			w.word_review?.total_reviews ?? 0,
-		);
+	for (const w of words as WordWithReview[]) {
+		const level = reviewToMasteryLevel(w.word_review);
 		counts[level]++;
 	}
 

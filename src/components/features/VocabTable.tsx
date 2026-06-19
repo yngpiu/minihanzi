@@ -18,7 +18,7 @@ import {
 	TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useDeleteWord, useWords } from "@/hooks/queries";
-import { getMasteryInfo, getMasteryLevel } from "@/lib/srs";
+import { getMasteryInfo, reviewToMasteryLevel } from "@/lib/fsrs";
 import type { WordWithReview } from "@/lib/types";
 import { AddWordDialog } from "./AddWordDialog";
 import { AIAddWordDialog } from "./AIAddWordDialog";
@@ -54,10 +54,7 @@ export function VocabTable() {
 		if (!words) return [];
 		return words.filter((w) => {
 			if (filter !== "all") {
-				const level = getMasteryLevel(
-					w.word_review?.interval_level ?? 0,
-					w.word_review?.total_reviews ?? 0,
-				);
+				const level = reviewToMasteryLevel(w.word_review);
 				if (level !== filter) return false;
 			}
 			if (search.trim()) {
@@ -270,10 +267,7 @@ function VocabRow({
 	);
 
 	const review = word.word_review;
-	const level = getMasteryLevel(
-		review?.interval_level ?? 0,
-		review?.total_reviews ?? 0,
-	);
+	const level = reviewToMasteryLevel(review);
 	const info = getMasteryInfo(level);
 	const nextReview = review?.next_review_at;
 	const isOverdue = nextReview && new Date(nextReview) <= new Date();

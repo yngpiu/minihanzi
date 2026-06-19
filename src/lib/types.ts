@@ -30,7 +30,12 @@ export interface Word {
 export interface WordReview {
 	id: string;
 	word_id: string;
-	interval_level: number;
+	stability: number;
+	difficulty: number;
+	lapses: number;
+	state: number;
+	elapsed_days: number;
+	scheduled_days: number;
 	last_reviewed: string | null;
 	next_review_at: string;
 	total_reviews: number;
@@ -72,3 +77,13 @@ export interface DashboardStats {
 	todayReviewed: number;
 	todayAdded: number;
 }
+
+export type InteractiveMode =
+	| "pinyin-input"
+	| "hanzi-choice"
+	| "listen-input"
+	| "mixed";
+
+export type FSRSRating = 1 | 2 | 3 | 4;
+
+export type ExerciseState = "prompt" | "answer" | "rated";

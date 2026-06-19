@@ -24,8 +24,8 @@ import {
 } from "@/components/ui/chart";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useDashboardStats, useStudyLogs, useWords } from "@/hooks/queries";
-import { getMasteryLevel } from "@/lib/srs";
-import type { StudyLog } from "@/lib/types";
+import { reviewToMasteryLevel } from "@/lib/fsrs";
+import type { StudyLog, WordWithReview } from "@/lib/types";
 
 export const Route = createFileRoute("/")({
 	component: Dashboard,
@@ -80,7 +80,6 @@ function Dashboard() {
 
 			{reviewing ? (
 				<Flashcard
-					compact
 					onComplete={() => {
 						setReviewing(false);
 					}}
@@ -329,11 +328,7 @@ function buildBarData(logs: StudyLog[]) {
 	return days;
 }
 
-function buildMasteryData(
-	words: {
-		word_review: { interval_level: number; total_reviews: number } | null;
-	}[],
-) {
+function buildMasteryData(words: WordWithReview[]) {
 	const counts: Record<string, number> = {
 		unstudied: 0,
 		learning: 0,
@@ -343,10 +338,7 @@ function buildMasteryData(
 	};
 
 	for (const w of words) {
-		const level = getMasteryLevel(
-			w.word_review?.interval_level ?? 0,
-			w.word_review?.total_reviews ?? 0,
-		);
+		const level = reviewToMasteryLevel(w.word_review);
 		counts[level]++;
 	}
 

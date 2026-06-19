@@ -1,5 +1,8 @@
+import { useMemo } from "react";
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import { useWords } from "@/hooks/queries";
+import { dbToCard, getRetrievability } from "@/lib/fsrs";
+import type { WordWithReview } from "@/lib/types";
 
 const COLORS = {
 	mastered: "#22c55e",
@@ -7,44 +10,55 @@ const COLORS = {
 	forgotten: "#ef4444",
 };
 
+function toCard(w: WordWithReview) {
+	if (!w.word_review) return null;
+	return dbToCard(w.word_review);
+}
+
 export function VocabHealth() {
 	const { data: words, isLoading } = useWords();
+
+	const data = useMemo(() => {
+		if (!words || words.length === 0) return [];
+
+		const now = new Date();
+		let mastered = 0;
+		let learning = 0;
+		let forgotten = 0;
+
+		for (const w of words) {
+			const card = toCard(w);
+			if (!card) {
+				forgotten++;
+				continue;
+			}
+			const r = getRetrievability(card, now);
+
+			if (card.state === 0) {
+				forgotten++;
+			} else if (card.state === 1 || card.state === 3) {
+				learning++;
+			} else if (r < 0.7) {
+				forgotten++;
+			} else if (r < 0.9) {
+				learning++;
+			} else {
+				mastered++;
+			}
+		}
+
+		return [
+			{ name: "Thuộc lòng", value: mastered, color: COLORS.mastered },
+			{ name: "Đang học", value: learning, color: COLORS.learning },
+			{ name: "Cần ôn lại", value: forgotten, color: COLORS.forgotten },
+		].filter((d) => d.value > 0);
+	}, [words]);
+
+	const total = data.reduce((s, d) => s + d.value, 0);
 
 	if (isLoading || !words || words.length === 0) {
 		return null;
 	}
-
-	const now = new Date();
-	const counts = { mastered: 0, learning: 0, forgotten: 0 };
-
-	for (const w of words) {
-		const level = w.word_review?.interval_level ?? 0;
-		const nextReview = w.word_review?.next_review_at
-			? new Date(w.word_review.next_review_at)
-			: null;
-
-		if (nextReview && nextReview <= now && level === 0) {
-			counts.forgotten++;
-		} else if (level >= 3) {
-			counts.mastered++;
-		} else if (level >= 1) {
-			counts.learning++;
-		} else {
-			counts.forgotten++;
-		}
-	}
-
-	const data = [
-		{ name: "Thuộc lòng", value: counts.mastered, color: COLORS.mastered },
-		{ name: "Đang học", value: counts.learning, color: COLORS.learning },
-		{
-			name: "Cần ôn lại",
-			value: counts.forgotten,
-			color: COLORS.forgotten,
-		},
-	].filter((d) => d.value > 0);
-
-	const total = counts.mastered + counts.learning + counts.forgotten;
 
 	return (
 		<div className="space-y-3">
