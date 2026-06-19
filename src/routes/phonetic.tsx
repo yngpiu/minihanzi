@@ -76,19 +76,10 @@ type HighlightApi = {
 
 const HighlightCtx = createContext<HighlightApi | null>(null);
 
-const audioCache = new Map<string, string>();
-
 async function playAudio(url: string | null) {
 	if (!url) return;
 	try {
-		let blobUrl = audioCache.get(url);
-		if (!blobUrl) {
-			const res = await fetch(url);
-			const blob = await res.blob();
-			blobUrl = URL.createObjectURL(blob);
-			audioCache.set(url, blobUrl);
-		}
-		const audio = new Audio(blobUrl);
+		const audio = new Audio(url);
 		await audio.play();
 	} catch {}
 }
