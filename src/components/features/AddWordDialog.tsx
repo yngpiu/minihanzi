@@ -42,11 +42,7 @@ const addWordSchema = z.object({
 		.trim()
 		.max(500, "Chiết tự tối đa 500 ký tự.")
 		.optional(),
-	example: z
-		.string()
-		.trim()
-		.max(200, "Ví dụ tối đa 200 ký tự.")
-		.optional(),
+	example: z.string().trim().max(200, "Ví dụ tối đa 200 ký tự.").optional(),
 });
 
 export function AddWordDialog() {
@@ -118,8 +114,7 @@ export function AddWordDialog() {
 								return (
 									<Field data-invalid={isInvalid || undefined}>
 										<FieldLabel htmlFor={field.name}>
-											字 Chữ Hán{" "}
-											<span className="text-destructive">*</span>
+											字 Chữ Hán <span className="text-destructive">*</span>
 										</FieldLabel>
 										<Input
 											id={field.name}
@@ -202,9 +197,7 @@ export function AddWordDialog() {
 									field.state.meta.isTouched && !field.state.meta.isValid;
 								return (
 									<Field data-invalid={isInvalid || undefined}>
-										<FieldLabel htmlFor={field.name}>
-											Bộ thủ cấu tạo
-										</FieldLabel>
+										<FieldLabel htmlFor={field.name}>Bộ thủ cấu tạo</FieldLabel>
 										<Input
 											id={field.name}
 											name={field.name}

@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { Play } from "lucide-react";
-import React, {
+import type React from "react";
+import {
 	createContext,
 	memo,
 	useCallback,
