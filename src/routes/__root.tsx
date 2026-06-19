@@ -1,5 +1,10 @@
 import { TanStackDevtools } from "@tanstack/react-devtools";
-import { createRootRoute, Link, Outlet, useRouter } from "@tanstack/react-router";
+import {
+	createRootRoute,
+	Outlet,
+	useNavigate,
+	useRouter,
+} from "@tanstack/react-router";
 import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
 import {
 	BarChart3,
@@ -105,7 +110,6 @@ function RootComponent() {
 							<main className="flex-1">
 								<Outlet />
 							</main>
-
 						</SidebarInset>
 					</SidebarProvider>
 				</TooltipProvider>
@@ -120,21 +124,20 @@ function RootComponent() {
 }
 
 function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+	const navigate = useNavigate();
 	return (
 		<Sidebar collapsible="icon" {...props}>
 			<SidebarHeader>
 				<SidebarMenu>
 					<SidebarMenuItem>
-						<SidebarMenuButton size="lg" asChild>
-							<Link to="/">
-								<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-lg">
-									漢
-								</div>
-								<div className="grid flex-1 text-left text-sm leading-tight">
-									<span className="truncate font-semibold">Hanzier</span>
-									<span className="truncate text-xs">Từ điển Trung-Việt</span>
-								</div>
-							</Link>
+						<SidebarMenuButton size="lg" onClick={() => navigate({ to: "/" })}>
+							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-lg">
+								漢
+							</div>
+							<div className="grid flex-1 text-left text-sm leading-tight">
+								<span className="truncate font-semibold">Hanzier</span>
+								<span className="truncate text-xs">Từ điển Trung-Việt</span>
+							</div>
 						</SidebarMenuButton>
 					</SidebarMenuItem>
 				</SidebarMenu>
@@ -144,41 +147,45 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarGroup>
 					<SidebarMenu>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip="Dashboard">
-								<Link to="/">
-									<LayoutDashboard size={16} />
-									<span>Dashboard</span>
-								</Link>
+							<SidebarMenuButton
+								tooltip="Dashboard"
+								onClick={() => navigate({ to: "/" })}
+							>
+								<LayoutDashboard size={16} />
+								<span>Dashboard</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip="Ôn tập">
-								<Link to="/review">
-									<GraduationCap size={16} />
-									<span>Ôn tập</span>
-									<Badge
-										variant="outline"
-										className="ml-auto text-xs font-normal"
-									>
-										SRS
-									</Badge>
-								</Link>
+							<SidebarMenuButton
+								tooltip="Ôn tập"
+								onClick={() => navigate({ to: "/review" })}
+							>
+								<GraduationCap size={16} />
+								<span>Ôn tập</span>
+								<Badge
+									variant="outline"
+									className="ml-auto text-xs font-normal"
+								>
+									SRS
+								</Badge>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip="Kho từ vựng">
-								<Link to="/vocabulary">
-									<BookMarked size={16} />
-									<span>Kho từ vựng</span>
-								</Link>
+							<SidebarMenuButton
+								tooltip="Kho từ vựng"
+								onClick={() => navigate({ to: "/vocabulary" })}
+							>
+								<BookMarked size={16} />
+								<span>Kho từ vựng</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip="Thống kê">
-								<Link to="/analytics">
-									<BarChart3 size={16} />
-									<span>Thống kê</span>
-								</Link>
+							<SidebarMenuButton
+								tooltip="Thống kê"
+								onClick={() => navigate({ to: "/analytics" })}
+							>
+								<BarChart3 size={16} />
+								<span>Thống kê</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					</SidebarMenu>
@@ -186,19 +193,21 @@ function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
 				<SidebarGroup>
 					<SidebarMenu>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip="Tra từ">
-								<Link to="/dictionary">
-									<Search size={16} />
-									<span>Tra từ</span>
-								</Link>
+							<SidebarMenuButton
+								tooltip="Tra từ"
+								onClick={() => navigate({ to: "/dictionary" })}
+							>
+								<Search size={16} />
+								<span>Tra từ</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 						<SidebarMenuItem>
-							<SidebarMenuButton asChild tooltip="Bảng phiên âm">
-								<Link to="/phonetic">
-									<Table size={16} />
-									<span>Bảng phiên âm</span>
-								</Link>
+							<SidebarMenuButton
+								tooltip="Bảng phiên âm"
+								onClick={() => navigate({ to: "/phonetic" })}
+							>
+								<Table size={16} />
+								<span>Bảng phiên âm</span>
 							</SidebarMenuButton>
 						</SidebarMenuItem>
 					</SidebarMenu>
