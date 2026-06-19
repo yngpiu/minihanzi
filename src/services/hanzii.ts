@@ -50,14 +50,21 @@ export async function fetchSuggest(query: string): Promise<SuggestItem[]> {
 	const items: SuggestItem[] =
 		json.status !== 200 || !Array.isArray(json.data)
 			? []
-			: json.data.map((item: string) => {
-					const parts = item.split("#");
-					return {
-						word: parts[0] || "",
-						pinyin: parts[2] || "",
-						meaning: parts[3] || "",
-					};
-				});
+			: [
+					...new Map(
+						json.data.map((item: string) => {
+							const parts = item.split("#");
+							return [
+								parts[0],
+								{
+									word: parts[0] || "",
+									pinyin: parts[2] || "",
+									meaning: parts[3] || "",
+								},
+							] as const;
+						}),
+					).values(),
+				];
 
 	setCachedSuggest(query, items);
 	return items;
