@@ -1,6 +1,6 @@
 import { useForm } from "@tanstack/react-form";
-import { Loader2, Plus } from "lucide-react";
-import { useState } from "react";
+import { ImageIcon, Loader2, Plus, X } from "lucide-react";
+import { useRef, useState } from "react";
 import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useAddWord } from "@/hooks/queries";
+import { uploadWordImage } from "@/lib/supabase/storage";
 
 const addWordSchema = z.object({
 	hanzi: z
@@ -51,6 +52,9 @@ const addWordSchema = z.object({
 export function AddWordDialog() {
 	const [open, setOpen] = useState(false);
 	const { mutate: addWord, isPending } = useAddWord();
+	const [imageFile, setImageFile] = useState<File | null>(null);
+	const [imagePreview, setImagePreview] = useState<string | null>(null);
+	const fileInputRef = useRef<HTMLInputElement>(null);
 
 	const form = useForm({
 		defaultValues: {
@@ -78,6 +82,13 @@ export function AddWordDialog() {
 							meaning: value.example_meaning?.trim() ?? "",
 						}
 					: undefined;
+
+			let image_url: string | undefined;
+			if (imageFile) {
+				const tempId = crypto.randomUUID();
+				image_url = await uploadWordImage(imageFile, tempId);
+			}
+
 			addWord(
 				{
 					hanzi: value.hanzi.trim(),
@@ -87,9 +98,12 @@ export function AddWordDialog() {
 					etymology: value.etymology?.trim() || undefined,
 					example: value.example?.trim() || undefined,
 					example_data: exampleData,
+					image_url,
 				},
 				{
 					onSuccess: () => {
+						setImageFile(null);
+						setImagePreview(null);
 						form.reset();
 						setOpen(false);
 					},
@@ -97,6 +111,19 @@ export function AddWordDialog() {
 			);
 		},
 	});
+
+	function handleImageSelect(e: React.ChangeEvent<HTMLInputElement>) {
+		const file = e.target.files?.[0];
+		if (!file) return;
+		setImageFile(file);
+		setImagePreview(URL.createObjectURL(file));
+	}
+
+	function clearImage() {
+		setImageFile(null);
+		setImagePreview(null);
+		if (fileInputRef.current) fileInputRef.current.value = "";
+	}
 
 	return (
 		<Dialog
@@ -347,6 +374,44 @@ export function AddWordDialog() {
 							)}
 						/>
 					</FieldGroup>
+
+					<div className="space-y-2 pt-2">
+						<p className="text-xs text-muted-foreground font-medium">
+							Ảnh minh hoạ
+						</p>
+						{imagePreview ? (
+							<div className="relative inline-block">
+								<img
+									src={imagePreview}
+									alt="Preview"
+									className="h-24 w-24 rounded-lg object-cover border"
+								/>
+								<button
+									type="button"
+									onClick={clearImage}
+									className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5"
+								>
+									<X size={14} />
+								</button>
+							</div>
+						) : (
+							<button
+								type="button"
+								onClick={() => fileInputRef.current?.click()}
+								className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
+							>
+								<ImageIcon size={16} />
+								Chọn ảnh
+							</button>
+						)}
+						<input
+							ref={fileInputRef}
+							type="file"
+							accept="image/png,image/jpeg,image/webp,image/gif"
+							className="hidden"
+							onChange={handleImageSelect}
+						/>
+					</div>
 
 					<div className="flex justify-end gap-2 pt-4">
 						<Button

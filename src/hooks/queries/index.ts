@@ -9,5 +9,6 @@ export { useKanjiSearch } from "./useKanjiSearch";
 export { useReviewWord } from "./useReviewWord";
 export { useStudyLogs } from "./useStudyLogs";
 export { useSuggest } from "./useSuggest";
+export { useUpdateWord } from "./useUpdateWord";
 export { useWordSearch } from "./useWordSearch";
 export { useWords } from "./useWords";

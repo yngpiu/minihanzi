@@ -22,6 +22,7 @@ export interface Word {
 	etymology: string | null;
 	example: string | null;
 	example_data: ExampleData | null;
+	image_url: string | null;
 	tags: string[];
 	created_at: string;
 	updated_at: string;

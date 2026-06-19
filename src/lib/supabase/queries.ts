@@ -17,6 +17,7 @@ import type {
 	WordWithReview,
 } from "@/lib/types";
 import { supabaseClient } from "./client";
+import { deleteWordImagesByWordId } from "./storage";
 
 function throwOnError(
 	label: string,
@@ -61,6 +62,7 @@ export async function addWord(fields: {
 	etymology?: string;
 	example?: string;
 	example_data?: ExampleData;
+	image_url?: string;
 	tags?: string[];
 }): Promise<Word> {
 	const res = await supabaseClient
@@ -74,6 +76,7 @@ export async function addWord(fields: {
 			etymology: fields.etymology ?? null,
 			example: fields.example ?? null,
 			example_data: fields.example_data ?? null,
+			image_url: fields.image_url ?? null,
 			tags: fields.tags ?? [],
 		})
 		.select()
@@ -110,6 +113,7 @@ export async function updateWord(
 		etymology: string;
 		example: string;
 		example_data: ExampleData;
+		image_url: string;
 		tags: string[];
 	}>,
 ): Promise<Word | null> {
@@ -124,8 +128,18 @@ export async function updateWord(
 }
 
 export async function deleteWord(id: string): Promise<void> {
+	const { data: word } = await supabaseClient
+		.from("words")
+		.select("image_url")
+		.eq("id", id)
+		.single();
+
 	const res = await supabaseClient.from("words").delete().eq("id", id);
 	throwOnError("deleteWord", res);
+
+	if (word?.image_url) {
+		await deleteWordImagesByWordId(id);
+	}
 }
 
 // ─── Review / FSRS ────────────────────────────────────

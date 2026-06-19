@@ -1,7 +1,22 @@
-import { Eye, EyeOff, Search, Trash2, Volume2, X } from "lucide-react";
+import {
+	Eye,
+	EyeOff,
+	MoreVertical,
+	PenLine,
+	Search,
+	Trash2,
+	Volume2,
+	X,
+} from "lucide-react";
 import { useCallback, useMemo, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import {
+	DropdownMenu,
+	DropdownMenuContent,
+	DropdownMenuItem,
+	DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import {
 	Select,
@@ -48,7 +63,10 @@ export function VocabTable() {
 	const [hideMeaning, setHideMeaning] = useState(false);
 	const [search, setSearch] = useState("");
 	const [filter, setFilter] = useState<FilterValue>("all");
-	const [detailWord, setDetailWord] = useState<string | null>(null);
+	const [dialogState, setDialogState] = useState<{
+		id: string;
+		edit: boolean;
+	} | null>(null);
 
 	const filtered = useMemo(() => {
 		if (!words) return [];
@@ -71,8 +89,8 @@ export function VocabTable() {
 	}, [words, filter, search]);
 
 	const selectedWord = useMemo(
-		() => words?.find((w) => w.id === detailWord) ?? null,
-		[words, detailWord],
+		() => words?.find((w) => w.id === dialogState?.id) ?? null,
+		[words, dialogState],
 	);
 
 	if (isLoading) {
@@ -211,7 +229,8 @@ export function VocabTable() {
 											index={i + 1}
 											hidePinyin={hidePinyin}
 											hideMeaning={hideMeaning}
-											onDetail={() => setDetailWord(w.id)}
+											onDetail={() => setDialogState({ id: w.id, edit: false })}
+											onEdit={() => setDialogState({ id: w.id, edit: true })}
 											onDelete={() => deleteWord(w.id)}
 										/>
 									))}
@@ -224,9 +243,10 @@ export function VocabTable() {
 
 			<WordDetailDialog
 				word={selectedWord}
-				open={detailWord !== null}
+				open={dialogState !== null}
+				editMode={dialogState?.edit ?? false}
 				onOpenChange={(open) => {
-					if (!open) setDetailWord(null);
+					if (!open) setDialogState(null);
 				}}
 			/>
 		</>
@@ -239,6 +259,7 @@ function VocabRow({
 	hidePinyin,
 	hideMeaning,
 	onDetail,
+	onEdit,
 	onDelete,
 }: {
 	word: WordWithReview;
@@ -246,6 +267,7 @@ function VocabRow({
 	hidePinyin: boolean;
 	hideMeaning: boolean;
 	onDetail: () => void;
+	onEdit: () => void;
 	onDelete: () => void;
 }) {
 	const [playing, setPlaying] = useState(false);
@@ -279,7 +301,14 @@ function VocabRow({
 		>
 			<td className="p-3 text-muted-foreground tabular-nums">{index}</td>
 			<td className="p-3">
-				<span className="flex items-center gap-1.5">
+				<span className="flex items-center gap-2">
+					{word.image_url && (
+						<img
+							src={word.image_url}
+							alt={word.hanzi}
+							className="size-8 rounded object-cover border shrink-0"
+						/>
+					)}
 					<span className="font-kai text-lg leading-none">{word.hanzi}</span>
 					<TooltipProvider>
 						<Tooltip>
@@ -354,24 +383,39 @@ function VocabRow({
 				)}
 			</td>
 			<td className="p-3">
-				<TooltipProvider>
-					<Tooltip>
-						<TooltipTrigger asChild>
-							<Button
-								variant="ghost"
-								size="icon-xs"
-								className="text-muted-foreground hover:text-destructive"
-								onClick={(e) => {
-									e.stopPropagation();
-									onDelete();
-								}}
-							>
-								<Trash2 />
-							</Button>
-						</TooltipTrigger>
-						<TooltipContent>Xoá từ</TooltipContent>
-					</Tooltip>
-				</TooltipProvider>
+				<DropdownMenu>
+					<DropdownMenuTrigger asChild>
+						<Button
+							variant="ghost"
+							size="icon-xs"
+							className="text-muted-foreground"
+							onClick={(e) => e.stopPropagation()}
+						>
+							<MoreVertical />
+						</Button>
+					</DropdownMenuTrigger>
+					<DropdownMenuContent align="end">
+						<DropdownMenuItem
+							onClick={(e) => {
+								e.stopPropagation();
+								onEdit();
+							}}
+						>
+							<PenLine />
+							Chỉnh sửa
+						</DropdownMenuItem>
+						<DropdownMenuItem
+							className="text-destructive"
+							onClick={(e) => {
+								e.stopPropagation();
+								onDelete();
+							}}
+						>
+							<Trash2 />
+							Xoá
+						</DropdownMenuItem>
+					</DropdownMenuContent>
+				</DropdownMenu>
 			</td>
 		</tr>
 	);
