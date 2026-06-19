@@ -174,7 +174,7 @@ function Dictionary() {
 								}
 							}}
 							onKeyDown={handleKeyDown}
-							onFocus={() => {
+							onFocus={(e) => {
 								if (searchValue.trim() && suggestItems.length > 0) {
 									setSuggestOpen(true);
 									setCursor(-1);
@@ -182,6 +182,7 @@ function Dictionary() {
 									setHistoryOpen(true);
 									setCursor(-1);
 								}
+								e.target.select();
 							}}
 							className="h-11 text-base"
 						/>
