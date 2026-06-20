@@ -166,7 +166,7 @@ function Dictionary() {
 					<div ref={wrapRef} className="relative flex-1 scroll-mt-20">
 						<Input
 							ref={inputRef}
-							placeholder="Nhập từ Hán (ví dụ: 你好, xiexie, bạn bè)..."
+							placeholder="Nhập từ Hán (ví dụ: 你好, xiexie, bạn bè)…"
 							value={searchValue}
 							onChange={(e) => {
 								submittedRef.current = false;

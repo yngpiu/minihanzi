@@ -1,46 +1,12 @@
-import { TanStackDevtools } from "@tanstack/react-devtools";
 import {
 	createRootRoute,
 	Outlet,
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import {
-	BarChart3,
-	BookMarked,
-	GraduationCap,
-	LayoutDashboard,
-	Monitor,
-	Moon,
-	Search,
-	Sun,
-	Table,
-} from "lucide-react";
+import { BookOpen, Monitor, Moon, Search, Sun, Table } from "lucide-react";
 import { useEffect, useState } from "react";
-import { Badge } from "@/components/ui/badge";
-import {
-	DropdownMenu,
-	DropdownMenuContent,
-	DropdownMenuItem,
-	DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { Separator } from "@/components/ui/separator";
-import {
-	Sidebar,
-	SidebarContent,
-	SidebarFooter,
-	SidebarGroup,
-	SidebarHeader,
-	SidebarInset,
-	SidebarMenu,
-	SidebarMenuButton,
-	SidebarMenuItem,
-	SidebarProvider,
-	SidebarRail,
-	SidebarTrigger,
-} from "@/components/ui/sidebar";
-import { TooltipProvider } from "@/components/ui/tooltip";
+import { Button } from "@/components/ui/button";
 import { SearchContext } from "@/lib/dictionary/search-context";
 import "../styles.css";
 
@@ -66,12 +32,42 @@ function applyTheme(t: Theme) {
 	localStorage.setItem("theme", t);
 }
 
+const THEME_CYCLE: Theme[] = ["light", "dark", "auto"];
+
+const ThemeIcon = { light: Sun, dark: Moon, auto: Monitor };
+
+function InlineThemeScript() {
+	const script = `(function(){try{var t=localStorage.getItem('theme'),d=matchMedia('(prefers-color-scheme: dark)').matches,r=t==='light'||t==='dark'?t:d?'dark':'light';document.documentElement.classList.toggle('dark',r==='dark');document.documentElement.setAttribute('data-theme',r);document.documentElement.style.colorScheme=r;}catch(e){}})()`;
+	return <script dangerouslySetInnerHTML={{ __html: script }} />;
+}
+
 export const Route = createRootRoute({
 	component: RootComponent,
 });
 
 function RootComponent() {
 	const router = useRouter();
+	const navigate = useNavigate();
+	const [theme, setTheme] = useState<Theme>(getTheme);
+
+	useEffect(() => {
+		applyTheme(theme);
+	}, [theme]);
+
+	useEffect(() => {
+		if (theme !== "auto") return;
+		const mq = window.matchMedia("(prefers-color-scheme: dark)");
+		const handler = () => applyTheme("auto");
+		mq.addEventListener("change", handler);
+		return () => mq.removeEventListener("change", handler);
+	}, [theme]);
+
+	function cycleTheme() {
+		const idx = THEME_CYCLE.indexOf(theme);
+		setTheme(THEME_CYCLE[(idx + 1) % THEME_CYCLE.length]);
+	}
+
+	const Icon = ThemeIcon[theme];
 
 	let urlQ = "";
 	try {
@@ -93,185 +89,69 @@ function RootComponent() {
 		<>
 			<InlineThemeScript />
 			<SearchContext.Provider value={{ searchValue: q, setSearchValue: setQ }}>
-				<TooltipProvider>
-					<SidebarProvider defaultOpen={false}>
-						<AppSidebar />
-						<SidebarInset>
-							<header className="flex h-16 shrink-0 items-center gap-2 border-b bg-background/95 backdrop-blur sticky top-0 z-10 transition-[width,height] ease-linear group-has-data-[collapsible=icon]/sidebar-wrapper:h-12">
-								<div className="flex items-center gap-2 px-4">
-									<SidebarTrigger className="-ml-1" />
-									<Separator
-										orientation="vertical"
-										className="mr-2 data-[orientation=vertical]:h-4"
-									/>
-								</div>
-							</header>
-
-							<main className="flex-1">
-								<Outlet />
-							</main>
-						</SidebarInset>
-					</SidebarProvider>
-				</TooltipProvider>
-			</SearchContext.Provider>
-
-			<TanStackDevtools
-				config={{ position: "bottom-right" }}
-				plugins={[{ name: "Router", render: <TanStackRouterDevtoolsPanel /> }]}
-			/>
-		</>
-	);
-}
-
-function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
-	const navigate = useNavigate();
-	return (
-		<Sidebar collapsible="icon" {...props}>
-			<SidebarHeader>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<SidebarMenuButton size="lg" onClick={() => navigate({ to: "/" })}>
-							<div className="flex aspect-square size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-lg">
-								漢
-							</div>
-							<div className="grid flex-1 text-left text-sm leading-tight">
-								<span className="truncate font-semibold">Hanzier</span>
-								<span className="truncate text-xs">Từ điển Trung-Việt</span>
-							</div>
-						</SidebarMenuButton>
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarHeader>
-
-			<SidebarContent>
-				<SidebarGroup>
-					<SidebarMenu>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Dashboard"
-								onClick={() => navigate({ to: "/" })}
-							>
-								<LayoutDashboard size={16} />
-								<span>Dashboard</span>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Ôn tập"
-								onClick={() => navigate({ to: "/review" })}
-							>
-								<GraduationCap size={16} />
-								<span>Ôn tập</span>
-								<Badge
-									variant="outline"
-									className="ml-auto text-xs font-normal"
-								>
-									SRS
-								</Badge>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Kho từ vựng"
-								onClick={() => navigate({ to: "/vocabulary" })}
-							>
-								<BookMarked size={16} />
-								<span>Kho từ vựng</span>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Thống kê"
-								onClick={() => navigate({ to: "/analytics" })}
-							>
-								<BarChart3 size={16} />
-								<span>Thống kê</span>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					</SidebarMenu>
-				</SidebarGroup>
-				<SidebarGroup>
-					<SidebarMenu>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Tra từ"
+				<div className="flex min-h-screen flex-col">
+					<header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
+						<div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4">
+							<button
+								type="button"
 								onClick={() => navigate({ to: "/dictionary" })}
+								className="flex items-center gap-2 font-semibold shrink-0"
 							>
-								<Search size={16} />
-								<span>Tra từ</span>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-						<SidebarMenuItem>
-							<SidebarMenuButton
-								tooltip="Bảng phiên âm"
-								onClick={() => navigate({ to: "/phonetic" })}
+								<div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-lg">
+									漢
+								</div>
+								<span className="hidden sm:inline">Minihanzi</span>
+							</button>
+
+							<nav className="flex items-center gap-1 ml-2">
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => navigate({ to: "/dictionary" })}
+									className="gap-1.5"
+								>
+									<Search size={14} />
+									<span>Tra từ</span>
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => navigate({ to: "/phonetic" })}
+									className="gap-1.5"
+								>
+									<Table size={14} />
+									<span>Bảng phiên âm</span>
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => navigate({ to: "/learn" })}
+									className="gap-1.5"
+								>
+									<BookOpen size={14} />
+									<span>Học từ</span>
+								</Button>
+							</nav>
+
+							<div className="flex-1" />
+
+							<button
+								type="button"
+								onClick={cycleTheme}
+								className="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+								title={`Chủ đề: ${theme === "light" ? "Sáng" : theme === "dark" ? "Tối" : "Tự động"}`}
+								aria-label={`Chủ đề: ${theme === "light" ? "Sáng" : theme === "dark" ? "Tối" : "Tự động"}`}
 							>
-								<Table size={16} />
-								<span>Bảng phiên âm</span>
-							</SidebarMenuButton>
-						</SidebarMenuItem>
-					</SidebarMenu>
-				</SidebarGroup>
-			</SidebarContent>
+								<Icon size={16} />
+							</button>
+						</div>
+					</header>
 
-			<SidebarFooter>
-				<SidebarMenu>
-					<SidebarMenuItem>
-						<ThemeDropdown />
-					</SidebarMenuItem>
-				</SidebarMenu>
-			</SidebarFooter>
-			<SidebarRail />
-		</Sidebar>
-	);
-}
-
-function InlineThemeScript() {
-	const script = `(function(){try{var t=localStorage.getItem('theme'),d=matchMedia('(prefers-color-scheme: dark)').matches,r=t==='light'||t==='dark'?t:d?'dark':'light';document.documentElement.classList.toggle('dark',r==='dark');document.documentElement.setAttribute('data-theme',r);document.documentElement.style.colorScheme=r;}catch(e){}})()`;
-	return <script dangerouslySetInnerHTML={{ __html: script }} />;
-}
-
-function ThemeDropdown() {
-	const [theme, setTheme] = useState<Theme>(getTheme);
-
-	useEffect(() => {
-		applyTheme(theme);
-	}, [theme]);
-
-	useEffect(() => {
-		if (theme !== "auto") return;
-		const mq = window.matchMedia("(prefers-color-scheme: dark)");
-		const handler = () => applyTheme("auto");
-		mq.addEventListener("change", handler);
-		return () => mq.removeEventListener("change", handler);
-	}, [theme]);
-
-	function cycleTheme(t: Theme) {
-		setTheme(t);
-		applyTheme(t);
-	}
-
-	const ThemeIcon = theme === "dark" ? Moon : theme === "light" ? Sun : Monitor;
-
-	return (
-		<DropdownMenu>
-			<DropdownMenuTrigger asChild>
-				<SidebarMenuButton variant="outline" className="gap-2">
-					<ThemeIcon size={15} />
-					<span>Chủ đề</span>
-				</SidebarMenuButton>
-			</DropdownMenuTrigger>
-			<DropdownMenuContent side="top" align="center">
-				<DropdownMenuItem onClick={() => cycleTheme("light")} className="gap-2">
-					<Sun size={14} /> Sáng
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => cycleTheme("dark")} className="gap-2">
-					<Moon size={14} /> Tối
-				</DropdownMenuItem>
-				<DropdownMenuItem onClick={() => cycleTheme("auto")} className="gap-2">
-					<Monitor size={14} /> Tự động
-				</DropdownMenuItem>
-			</DropdownMenuContent>
-		</DropdownMenu>
+					<main className="flex-1">
+						<Outlet />
+					</main>
+				</div>
+			</SearchContext.Provider>
+		</>
 	);
 }

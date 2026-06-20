@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Play } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import {
 	createContext,
 	type MouseEvent,
@@ -16,58 +16,11 @@ import {
 	PopoverContent,
 	PopoverTrigger,
 } from "@/components/ui/popover";
-
-const STORAGE_KEY = "phonetic-data";
+import { usePhonetic } from "@/hooks/queries/useVocabulary";
 
 export const Route = createFileRoute("/phonetic")({
 	component: PhoneticPage,
 });
-
-type CellData = {
-	text: string[];
-	type: number;
-	isNull?: boolean;
-	audio: (string | null)[];
-	join?: string;
-};
-
-async function getData(): Promise<CellData[][]> {
-	const cached = localStorage.getItem(STORAGE_KEY);
-	if (cached) return JSON.parse(cached) as CellData[][];
-	const { default: raw } = await import("../../data/phonetic.json");
-	localStorage.setItem(STORAGE_KEY, JSON.stringify(raw));
-	return raw as CellData[][];
-}
-
-function usePhoneticData() {
-	const [state, setState] = useState<{
-		initials: { label: string; col: number }[];
-		finals: { label: string; rowIndex: number; cells: CellData[] }[];
-	} | null>(null);
-
-	useEffect(() => {
-		getData().then((data) => {
-			const initials: { label: string; col: number }[] = [];
-			const headerRow = data[0];
-			for (let ci = 2; ci < headerRow.length; ci++) {
-				const cell = headerRow[ci];
-				if (cell && !cell.isNull && cell.text?.[0]) {
-					initials.push({ label: cell.text[0], col: ci });
-				}
-			}
-			const finals: { label: string; rowIndex: number; cells: CellData[] }[] =
-				[];
-			for (let ri = 1; ri < data.length; ri++) {
-				const row = data[ri];
-				const label = row[0]?.text?.[0] ?? "";
-				finals.push({ label, rowIndex: ri, cells: row });
-			}
-			setState({ initials, finals });
-		});
-	}, []);
-
-	return state;
-}
 
 type HighlightApi = {
 	onEnter: (row: string, col: string) => void;
@@ -85,11 +38,38 @@ async function playAudio(url: string | null) {
 }
 
 function PhoneticPage() {
-	useEffect(() => {
-		document.title = "Bảng phiên âm - Minihanzi";
-	}, []);
+	const { data: cells, isLoading } = usePhonetic();
+
 	const gridRef = useRef<HTMLDivElement>(null);
-	const state = usePhoneticData();
+
+	const { initials, finals } = useMemo(() => {
+		if (!cells) return { initials: [], finals: [] };
+
+		const headerRows = cells.filter((c) => c.row_idx === 0 && c.col_idx >= 2);
+		const initials = headerRows
+			.filter((c) => !c.is_null && c.text[0])
+			.map((c) => ({ label: c.text[0], col: c.col_idx }));
+
+		const finalRows = cells.filter((c) => c.row_idx >= 1);
+		const rowMap = new Map<
+			number,
+			{ label: string; cells: (typeof cells)[number][] }
+		>();
+		for (const c of finalRows) {
+			const row = rowMap.get(c.row_idx) ?? { label: "", cells: [] };
+			rowMap.set(c.row_idx, row);
+			if (c.col_idx === 0) row.label = c.text[0] ?? "";
+			row.cells.push(c);
+		}
+		const finals = Array.from(rowMap.entries())
+			.sort(([a], [b]) => a - b)
+			.map(([, v]) => ({
+				label: v.label,
+				cells: v.cells.sort((a, b) => a.col_idx - b.col_idx),
+			}));
+
+		return { initials, finals };
+	}, [cells]);
 
 	const api = useMemo<HighlightApi>(
 		() => ({
@@ -130,20 +110,23 @@ function PhoneticPage() {
 		api.onLeave();
 	}, [api]);
 
-	if (!state) {
+	useEffect(() => {
+		document.title = "Bảng phiên âm - Minihanzi";
+	}, []);
+
+	if (isLoading) {
 		return (
 			<div className="p-4 md:p-6">
 				<h1 className="text-2xl font-bold tracking-tight mb-1">
 					Bảng phiên âm
 				</h1>
 				<div className="flex items-center justify-center h-64 text-muted-foreground">
-					Đang tải...
+					<Loader2 size={24} className="animate-spin mr-2" />
+					Đang tải…
 				</div>
 			</div>
 		);
 	}
-
-	const { initials, finals } = state;
 
 	return (
 		<HighlightCtx.Provider value={api}>
@@ -170,14 +153,10 @@ function PhoneticPage() {
 							<CellHeader key={col} label={label} col={col} />
 						))}
 
-						{finals.map(({ label, rowIndex, cells }) => (
-							<FinalRow
-								key={rowIndex}
-								label={label}
-								rowIndex={rowIndex}
-								cells={cells}
-							/>
-						))}
+						{finals.map(({ label, cells: rowCells }) => {
+							const rowIdx = rowCells[0]?.row_idx ?? 0;
+							return <FinalRow key={rowIdx} label={label} cells={rowCells} />;
+						})}
 					</div>
 				</div>
 			</div>
@@ -207,24 +186,20 @@ const CellHeader = memo(function CellHeader({
 
 const FinalRow = memo(function FinalRow({
 	label,
-	rowIndex,
 	cells,
 }: {
 	label: string;
-	rowIndex: number;
-	cells: CellData[];
+	cells: NonNullable<ReturnType<typeof usePhonetic>["data"]>[number][];
 }) {
-	const r = rowIndex;
+	const r = cells[0]?.row_idx ?? 0;
 	return (
 		<>
 			<CellRowHeader label={label} row={r} />
-			{cells.slice(1).map((cell, ci) => {
-				const col = ci + 1;
-				if (cell.isNull) return <CellEmpty key={col} row={r} col={col} />;
+			{cells.slice(1).map((cell) => {
+				const col = cell.col_idx;
+				if (cell.is_null) return <CellEmpty key={col} row={r} col={col} />;
 				if (cell.type === 1) {
-					return (
-						<CellHeader key={col} label={cell.text?.[0] ?? ""} col={col} />
-					);
+					return <CellHeader key={col} label={cell.text[0] ?? ""} col={col} />;
 				}
 				return <DataCell key={col} cell={cell} row={r} col={col} />;
 			})}
@@ -268,12 +243,12 @@ const CellEmpty = memo(function CellEmpty({
 	);
 });
 
-const DataCell = memo(function DataCell({
+function DataCell({
 	cell,
 	row,
 	col,
 }: {
-	cell: CellData;
+	cell: NonNullable<ReturnType<typeof usePhonetic>["data"]>[number];
 	row: number;
 	col: number;
 }) {
@@ -330,4 +305,4 @@ const DataCell = memo(function DataCell({
 			</PopoverContent>
 		</Popover>
 	);
-});
+}

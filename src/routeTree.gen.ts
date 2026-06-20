@@ -9,26 +9,26 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as VocabularyRouteImport } from './routes/vocabulary'
-import { Route as ReviewRouteImport } from './routes/review'
 import { Route as PhoneticRouteImport } from './routes/phonetic'
+import { Route as LearnRouteImport } from './routes/learn'
 import { Route as DictionaryRouteImport } from './routes/dictionary'
-import { Route as AnalyticsRouteImport } from './routes/analytics'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as LearnIndexRouteImport } from './routes/learn.index'
+import { Route as LearnIdRouteImport } from './routes/learn.$id'
+import { Route as LearnIdSrsRouteImport } from './routes/learn.$id.srs'
+import { Route as LearnIdNgheChepRouteImport } from './routes/learn.$id.nghe-chep'
+import { Route as LearnIdLuyenVietRouteImport } from './routes/learn.$id.luyen-viet'
+import { Route as LearnIdKiemTraRouteImport } from './routes/learn.$id.kiem-tra'
+import { Route as LearnIdHocRouteImport } from './routes/learn.$id.hoc'
 
-const VocabularyRoute = VocabularyRouteImport.update({
-  id: '/vocabulary',
-  path: '/vocabulary',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ReviewRoute = ReviewRouteImport.update({
-  id: '/review',
-  path: '/review',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const PhoneticRoute = PhoneticRouteImport.update({
   id: '/phonetic',
   path: '/phonetic',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LearnRoute = LearnRouteImport.update({
+  id: '/learn',
+  path: '/learn',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DictionaryRoute = DictionaryRouteImport.update({
@@ -36,99 +36,148 @@ const DictionaryRoute = DictionaryRouteImport.update({
   path: '/dictionary',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AnalyticsRoute = AnalyticsRouteImport.update({
-  id: '/analytics',
-  path: '/analytics',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LearnIndexRoute = LearnIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnIdRoute = LearnIdRouteImport.update({
+  id: '/$id',
+  path: '/$id',
+  getParentRoute: () => LearnRoute,
+} as any)
+const LearnIdSrsRoute = LearnIdSrsRouteImport.update({
+  id: '/srs',
+  path: '/srs',
+  getParentRoute: () => LearnIdRoute,
+} as any)
+const LearnIdNgheChepRoute = LearnIdNgheChepRouteImport.update({
+  id: '/nghe-chep',
+  path: '/nghe-chep',
+  getParentRoute: () => LearnIdRoute,
+} as any)
+const LearnIdLuyenVietRoute = LearnIdLuyenVietRouteImport.update({
+  id: '/luyen-viet',
+  path: '/luyen-viet',
+  getParentRoute: () => LearnIdRoute,
+} as any)
+const LearnIdKiemTraRoute = LearnIdKiemTraRouteImport.update({
+  id: '/kiem-tra',
+  path: '/kiem-tra',
+  getParentRoute: () => LearnIdRoute,
+} as any)
+const LearnIdHocRoute = LearnIdHocRouteImport.update({
+  id: '/hoc',
+  path: '/hoc',
+  getParentRoute: () => LearnIdRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
-  '/analytics': typeof AnalyticsRoute
   '/dictionary': typeof DictionaryRoute
+  '/learn': typeof LearnRouteWithChildren
   '/phonetic': typeof PhoneticRoute
-  '/review': typeof ReviewRoute
-  '/vocabulary': typeof VocabularyRoute
+  '/learn/$id': typeof LearnIdRouteWithChildren
+  '/learn/': typeof LearnIndexRoute
+  '/learn/$id/hoc': typeof LearnIdHocRoute
+  '/learn/$id/kiem-tra': typeof LearnIdKiemTraRoute
+  '/learn/$id/luyen-viet': typeof LearnIdLuyenVietRoute
+  '/learn/$id/nghe-chep': typeof LearnIdNgheChepRoute
+  '/learn/$id/srs': typeof LearnIdSrsRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
-  '/analytics': typeof AnalyticsRoute
   '/dictionary': typeof DictionaryRoute
   '/phonetic': typeof PhoneticRoute
-  '/review': typeof ReviewRoute
-  '/vocabulary': typeof VocabularyRoute
+  '/learn/$id': typeof LearnIdRouteWithChildren
+  '/learn': typeof LearnIndexRoute
+  '/learn/$id/hoc': typeof LearnIdHocRoute
+  '/learn/$id/kiem-tra': typeof LearnIdKiemTraRoute
+  '/learn/$id/luyen-viet': typeof LearnIdLuyenVietRoute
+  '/learn/$id/nghe-chep': typeof LearnIdNgheChepRoute
+  '/learn/$id/srs': typeof LearnIdSrsRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
-  '/analytics': typeof AnalyticsRoute
   '/dictionary': typeof DictionaryRoute
+  '/learn': typeof LearnRouteWithChildren
   '/phonetic': typeof PhoneticRoute
-  '/review': typeof ReviewRoute
-  '/vocabulary': typeof VocabularyRoute
+  '/learn/$id': typeof LearnIdRouteWithChildren
+  '/learn/': typeof LearnIndexRoute
+  '/learn/$id/hoc': typeof LearnIdHocRoute
+  '/learn/$id/kiem-tra': typeof LearnIdKiemTraRoute
+  '/learn/$id/luyen-viet': typeof LearnIdLuyenVietRoute
+  '/learn/$id/nghe-chep': typeof LearnIdNgheChepRoute
+  '/learn/$id/srs': typeof LearnIdSrsRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
-    | '/analytics'
     | '/dictionary'
+    | '/learn'
     | '/phonetic'
-    | '/review'
-    | '/vocabulary'
+    | '/learn/$id'
+    | '/learn/'
+    | '/learn/$id/hoc'
+    | '/learn/$id/kiem-tra'
+    | '/learn/$id/luyen-viet'
+    | '/learn/$id/nghe-chep'
+    | '/learn/$id/srs'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
-    | '/analytics'
     | '/dictionary'
     | '/phonetic'
-    | '/review'
-    | '/vocabulary'
+    | '/learn/$id'
+    | '/learn'
+    | '/learn/$id/hoc'
+    | '/learn/$id/kiem-tra'
+    | '/learn/$id/luyen-viet'
+    | '/learn/$id/nghe-chep'
+    | '/learn/$id/srs'
   id:
     | '__root__'
     | '/'
-    | '/analytics'
     | '/dictionary'
+    | '/learn'
     | '/phonetic'
-    | '/review'
-    | '/vocabulary'
+    | '/learn/$id'
+    | '/learn/'
+    | '/learn/$id/hoc'
+    | '/learn/$id/kiem-tra'
+    | '/learn/$id/luyen-viet'
+    | '/learn/$id/nghe-chep'
+    | '/learn/$id/srs'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
-  AnalyticsRoute: typeof AnalyticsRoute
   DictionaryRoute: typeof DictionaryRoute
+  LearnRoute: typeof LearnRouteWithChildren
   PhoneticRoute: typeof PhoneticRoute
-  ReviewRoute: typeof ReviewRoute
-  VocabularyRoute: typeof VocabularyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/vocabulary': {
-      id: '/vocabulary'
-      path: '/vocabulary'
-      fullPath: '/vocabulary'
-      preLoaderRoute: typeof VocabularyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/review': {
-      id: '/review'
-      path: '/review'
-      fullPath: '/review'
-      preLoaderRoute: typeof ReviewRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/phonetic': {
       id: '/phonetic'
       path: '/phonetic'
       fullPath: '/phonetic'
       preLoaderRoute: typeof PhoneticRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/learn': {
+      id: '/learn'
+      path: '/learn'
+      fullPath: '/learn'
+      preLoaderRoute: typeof LearnRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dictionary': {
@@ -138,13 +187,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DictionaryRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/analytics': {
-      id: '/analytics'
-      path: '/analytics'
-      fullPath: '/analytics'
-      preLoaderRoute: typeof AnalyticsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/': {
       id: '/'
       path: '/'
@@ -152,16 +194,94 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/learn/': {
+      id: '/learn/'
+      path: '/'
+      fullPath: '/learn/'
+      preLoaderRoute: typeof LearnIndexRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/$id': {
+      id: '/learn/$id'
+      path: '/$id'
+      fullPath: '/learn/$id'
+      preLoaderRoute: typeof LearnIdRouteImport
+      parentRoute: typeof LearnRoute
+    }
+    '/learn/$id/srs': {
+      id: '/learn/$id/srs'
+      path: '/srs'
+      fullPath: '/learn/$id/srs'
+      preLoaderRoute: typeof LearnIdSrsRouteImport
+      parentRoute: typeof LearnIdRoute
+    }
+    '/learn/$id/nghe-chep': {
+      id: '/learn/$id/nghe-chep'
+      path: '/nghe-chep'
+      fullPath: '/learn/$id/nghe-chep'
+      preLoaderRoute: typeof LearnIdNgheChepRouteImport
+      parentRoute: typeof LearnIdRoute
+    }
+    '/learn/$id/luyen-viet': {
+      id: '/learn/$id/luyen-viet'
+      path: '/luyen-viet'
+      fullPath: '/learn/$id/luyen-viet'
+      preLoaderRoute: typeof LearnIdLuyenVietRouteImport
+      parentRoute: typeof LearnIdRoute
+    }
+    '/learn/$id/kiem-tra': {
+      id: '/learn/$id/kiem-tra'
+      path: '/kiem-tra'
+      fullPath: '/learn/$id/kiem-tra'
+      preLoaderRoute: typeof LearnIdKiemTraRouteImport
+      parentRoute: typeof LearnIdRoute
+    }
+    '/learn/$id/hoc': {
+      id: '/learn/$id/hoc'
+      path: '/hoc'
+      fullPath: '/learn/$id/hoc'
+      preLoaderRoute: typeof LearnIdHocRouteImport
+      parentRoute: typeof LearnIdRoute
+    }
   }
 }
 
+interface LearnIdRouteChildren {
+  LearnIdHocRoute: typeof LearnIdHocRoute
+  LearnIdKiemTraRoute: typeof LearnIdKiemTraRoute
+  LearnIdLuyenVietRoute: typeof LearnIdLuyenVietRoute
+  LearnIdNgheChepRoute: typeof LearnIdNgheChepRoute
+  LearnIdSrsRoute: typeof LearnIdSrsRoute
+}
+
+const LearnIdRouteChildren: LearnIdRouteChildren = {
+  LearnIdHocRoute: LearnIdHocRoute,
+  LearnIdKiemTraRoute: LearnIdKiemTraRoute,
+  LearnIdLuyenVietRoute: LearnIdLuyenVietRoute,
+  LearnIdNgheChepRoute: LearnIdNgheChepRoute,
+  LearnIdSrsRoute: LearnIdSrsRoute,
+}
+
+const LearnIdRouteWithChildren =
+  LearnIdRoute._addFileChildren(LearnIdRouteChildren)
+
+interface LearnRouteChildren {
+  LearnIdRoute: typeof LearnIdRouteWithChildren
+  LearnIndexRoute: typeof LearnIndexRoute
+}
+
+const LearnRouteChildren: LearnRouteChildren = {
+  LearnIdRoute: LearnIdRouteWithChildren,
+  LearnIndexRoute: LearnIndexRoute,
+}
+
+const LearnRouteWithChildren = LearnRoute._addFileChildren(LearnRouteChildren)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
-  AnalyticsRoute: AnalyticsRoute,
   DictionaryRoute: DictionaryRoute,
+  LearnRoute: LearnRouteWithChildren,
   PhoneticRoute: PhoneticRoute,
-  ReviewRoute: ReviewRoute,
-  VocabularyRoute: VocabularyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
