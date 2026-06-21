@@ -150,7 +150,7 @@ function DictationPage() {
 				</button>
 			</Card>
 
-			<div className="flex gap-2 mb-4">
+			<div className="flex flex-col sm:flex-row gap-2 mb-4">
 				<Input
 					value={value}
 					onChange={(e) => {
@@ -173,12 +173,12 @@ function DictationPage() {
 					autoFocus
 				/>
 				{result === null && (
-					<Button onClick={checkAnswer} className="h-11 shrink-0">
+					<Button onClick={checkAnswer} className="h-11 sm:w-auto">
 						Kiểm tra
 					</Button>
 				)}
 				{result !== null && (
-					<Button onClick={next} className="h-11 shrink-0">
+					<Button onClick={next} className="h-11 sm:w-auto">
 						Tiếp
 					</Button>
 				)}

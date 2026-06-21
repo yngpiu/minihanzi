@@ -59,6 +59,19 @@ export interface SearchResponse {
 	result: WordResult[];
 }
 
+export interface StructureNode {
+	char: string;
+	hinhthai?: string;
+	sets?: string;
+	comps?: StructureNode[];
+}
+
+export interface KanjiDetail {
+	comp?: string[];
+	scomp?: string[];
+	var?: string[];
+}
+
 export interface KanjiResult {
 	word: string;
 	pinyin?: string;
@@ -66,6 +79,11 @@ export interface KanjiResult {
 	count?: number;
 	lucthu?: string;
 	strokes?: string;
+	hinhthai?: string;
+	detail?: KanjiDetail;
+	popular?: string;
+	cn_vi?: string;
+	netbut?: string;
 }
 
 export interface KanjiResponse {

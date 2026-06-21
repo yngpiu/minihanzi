@@ -2,6 +2,7 @@ import { Pause, PenLine, Play } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 import type { KanjiResult } from "@/services/types";
+import { StructureDiagram } from "./StructureDiagram";
 
 export function KanjiTile({
 	char,
@@ -116,6 +117,12 @@ export function KanjiTile({
 				<div className="text-xs text-muted-foreground">Đang tải…</div>
 			) : detail ? (
 				<div className="w-full space-y-1 text-xs">
+					{detail.cn_vi && (
+						<div className="flex justify-between">
+							<span className="text-muted-foreground">Hán Việt</span>
+							<span>{detail.cn_vi}</span>
+						</div>
+					)}
 					{detail.pinyin && (
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Pinyin</span>
@@ -125,7 +132,7 @@ export function KanjiTile({
 					{detail.sets && (
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Bộ</span>
-							<span>{detail.sets}</span>
+							<span className="uppercase">{detail.sets}</span>
 						</div>
 					)}
 					{detail.count !== undefined && (
@@ -138,6 +145,22 @@ export function KanjiTile({
 						<div className="flex justify-between">
 							<span className="text-muted-foreground">Lục thư</span>
 							<span>{detail.lucthu}</span>
+						</div>
+					)}
+					{detail.popular && (
+						<div className="flex justify-between">
+							<span className="text-muted-foreground">Phổ biến</span>
+							<span className="capitalize">{detail.popular}</span>
+						</div>
+					)}
+					{detail.hinhthai && (
+						<div className="flex items-center justify-between pt-1">
+							<span className="text-muted-foreground">Cấu trúc</span>
+							<StructureDiagram
+								hinhthai={detail.hinhthai}
+								comps={detail.detail?.comp}
+								char={char}
+							/>
 						</div>
 					)}
 				</div>

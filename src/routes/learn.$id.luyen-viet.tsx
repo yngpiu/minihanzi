@@ -184,7 +184,9 @@ const HanziWriterCanvas = memo(function HanziWriterCanvas({
 				</div>
 			)}
 
-			<div ref={canvasRef} className="rounded-lg border bg-white" />
+			<div className="w-full max-w-[280px] mx-auto">
+				<div ref={canvasRef} className="rounded-lg border bg-white" />
+			</div>
 
 			<div className="flex items-center gap-2">
 				<Button variant="outline" size="sm" onClick={replay}>

@@ -129,9 +129,17 @@ function FlashcardPage() {
 				{index + 1} / {words.length}
 			</div>
 
-			<button
-				type="button"
+			{/* biome-ignore lint/a11y/useSemanticElements: div role=button avoids nested <button> which is invalid HTML */}
+			<div
+				role="button"
+				tabIndex={0}
 				onClick={() => setFlipped(!flipped)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						setFlipped(!flipped);
+					}
+				}}
 				className="w-full min-h-[320px] rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors cursor-pointer"
 			>
 				<div className="flex flex-col items-center justify-center min-h-[320px] p-8">
@@ -172,14 +180,20 @@ function FlashcardPage() {
 						</div>
 					)}
 				</div>
-			</button>
+			</div>
 
-			<div className="flex items-center justify-center gap-4 mt-6">
-				<Button variant="outline" onClick={goPrev} disabled={index === 0}>
+			<div className="flex items-center justify-center gap-2 sm:gap-4 mt-6">
+				<Button
+					variant="outline"
+					size="sm"
+					onClick={goPrev}
+					disabled={index === 0}
+				>
 					<ArrowLeft size={16} className="mr-1" /> Trước
 				</Button>
 				<Button
 					variant="outline"
+					size="sm"
 					onClick={() => {
 						setFlipped(false);
 						setIndex(0);
@@ -189,6 +203,7 @@ function FlashcardPage() {
 				</Button>
 				<Button
 					variant="outline"
+					size="sm"
 					onClick={goNext}
 					disabled={index === words.length - 1}
 				>

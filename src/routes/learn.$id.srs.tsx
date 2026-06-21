@@ -255,9 +255,17 @@ function SRSPage() {
 				</Badge>
 			</div>
 
-			<button
-				type="button"
+			{/* biome-ignore lint/a11y/useSemanticElements: div role=button avoids nested <button> which is invalid HTML */}
+			<div
+				role="button"
+				tabIndex={0}
 				onClick={() => setFlipped(!flipped)}
+				onKeyDown={(e) => {
+					if (e.key === "Enter" || e.key === " ") {
+						e.preventDefault();
+						setFlipped(!flipped);
+					}
+				}}
 				className="w-full min-h-[300px] rounded-xl border-2 border-border bg-card hover:border-primary/30 transition-colors cursor-pointer"
 			>
 				<div className="flex flex-col items-center justify-center min-h-[300px] p-8">
@@ -297,10 +305,10 @@ function SRSPage() {
 						</div>
 					)}
 				</div>
-			</button>
+			</div>
 
 			{flipped && (
-				<div className="flex items-center justify-center gap-2 mt-4">
+				<div className="grid grid-cols-2 sm:flex items-center gap-2 mt-4">
 					<Button
 						variant="outline"
 						className="border-red-200 text-red-600 hover:bg-red-50 dark:border-red-900 dark:text-red-400 dark:hover:bg-red-950"

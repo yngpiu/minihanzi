@@ -4,4 +4,5 @@ export const queryKeys = {
 	suggest: (query: string) => ["suggest", query] as const,
 	chatGpt: (word: string, pinyin?: string) =>
 		["chatgpt", word, pinyin] as const,
+	structureTree: (char: string) => ["structure-tree", char] as const,
 };

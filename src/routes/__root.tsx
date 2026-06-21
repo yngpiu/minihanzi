@@ -4,9 +4,25 @@ import {
 	useNavigate,
 	useRouter,
 } from "@tanstack/react-router";
-import { BookOpen, Monitor, Moon, Search, Sun, Table } from "lucide-react";
+import {
+	BookOpen,
+	Menu,
+	Monitor,
+	Moon,
+	Search,
+	Sun,
+	Table,
+} from "lucide-react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
+import {
+	Sheet,
+	SheetClose,
+	SheetContent,
+	SheetHeader,
+	SheetTitle,
+	SheetTrigger,
+} from "@/components/ui/sheet";
 import { SearchContext } from "@/lib/dictionary/search-context";
 import "../styles.css";
 
@@ -49,6 +65,7 @@ function RootComponent() {
 	const router = useRouter();
 	const navigate = useNavigate();
 	const [theme, setTheme] = useState<Theme>(getTheme);
+	const [sheetOpen, setSheetOpen] = useState(false);
 
 	useEffect(() => {
 		applyTheme(theme);
@@ -91,24 +108,72 @@ function RootComponent() {
 			<SearchContext.Provider value={{ searchValue: q, setSearchValue: setQ }}>
 				<div className="flex min-h-screen flex-col">
 					<header className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-backdrop-filter:bg-background/60">
-						<div className="mx-auto flex h-14 max-w-5xl items-center gap-4 px-4">
+						<div className="mx-auto flex h-14 max-w-5xl items-center gap-1 sm:gap-4 px-3 sm:px-4">
 							<button
 								type="button"
 								onClick={() => navigate({ to: "/dictionary" })}
-								className="flex items-center gap-2 font-semibold shrink-0"
+								className="flex items-center gap-1.5 sm:gap-2 font-semibold shrink-0"
 							>
-								<div className="flex size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-lg">
+								<div className="flex size-7 sm:size-8 items-center justify-center rounded-lg bg-primary text-primary-foreground font-serif text-base sm:text-lg">
 									漢
 								</div>
 								<span className="hidden sm:inline">Minihanzi</span>
 							</button>
 
-							<nav className="flex items-center gap-1 ml-2">
+							<Sheet open={sheetOpen} onOpenChange={setSheetOpen}>
+								<SheetTrigger asChild>
+									<Button
+										variant="ghost"
+										size="icon-sm"
+										className="sm:hidden"
+										aria-label="Menu"
+									>
+										<Menu size={18} />
+									</Button>
+								</SheetTrigger>
+								<SheetContent side="left" className="w-64">
+									<SheetHeader>
+										<SheetTitle>Minihanzi</SheetTitle>
+									</SheetHeader>
+									<div className="flex flex-col gap-1 px-4">
+										<SheetClose asChild>
+											<Button
+												variant="ghost"
+												className="justify-start gap-3"
+												onClick={() => navigate({ to: "/dictionary" })}
+											>
+												<Search size={16} /> Tra từ
+											</Button>
+										</SheetClose>
+										<SheetClose asChild>
+											<Button
+												variant="ghost"
+												className="justify-start gap-3"
+												onClick={() => navigate({ to: "/phonetic" })}
+											>
+												<Table size={16} /> Bảng phiên âm
+											</Button>
+										</SheetClose>
+										<SheetClose asChild>
+											<Button
+												variant="ghost"
+												className="justify-start gap-3"
+												onClick={() => navigate({ to: "/learn" })}
+											>
+												<BookOpen size={16} /> Học từ
+											</Button>
+										</SheetClose>
+									</div>
+								</SheetContent>
+							</Sheet>
+
+							<nav className="hidden sm:flex items-center gap-0.5">
 								<Button
 									variant="ghost"
 									size="sm"
 									onClick={() => navigate({ to: "/dictionary" })}
 									className="gap-1.5"
+									aria-label="Tra từ"
 								>
 									<Search size={14} />
 									<span>Tra từ</span>
@@ -118,6 +183,7 @@ function RootComponent() {
 									size="sm"
 									onClick={() => navigate({ to: "/phonetic" })}
 									className="gap-1.5"
+									aria-label="Bảng phiên âm"
 								>
 									<Table size={14} />
 									<span>Bảng phiên âm</span>
@@ -127,6 +193,7 @@ function RootComponent() {
 									size="sm"
 									onClick={() => navigate({ to: "/learn" })}
 									className="gap-1.5"
+									aria-label="Học từ"
 								>
 									<BookOpen size={14} />
 									<span>Học từ</span>
@@ -138,7 +205,7 @@ function RootComponent() {
 							<button
 								type="button"
 								onClick={cycleTheme}
-								className="flex size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
+								className="flex size-7 sm:size-8 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-accent-foreground transition-colors"
 								title={`Chủ đề: ${theme === "light" ? "Sáng" : theme === "dark" ? "Tối" : "Tự động"}`}
 								aria-label={`Chủ đề: ${theme === "light" ? "Sáng" : theme === "dark" ? "Tối" : "Tự động"}`}
 							>

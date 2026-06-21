@@ -273,7 +273,7 @@ function Dictionary() {
 					<div className="flex flex-col items-center justify-center min-h-[60vh] gap-6 text-center">
 						<div
 							aria-hidden
-							className="text-7xl md:text-9xl font-serif text-primary/20 select-none"
+							className="text-5xl sm:text-7xl md:text-9xl font-serif text-primary/20 select-none"
 						>
 							汉字
 						</div>

@@ -142,13 +142,13 @@ function StudySetPage() {
 						key={word.id}
 						className="flex items-center gap-3 rounded-lg border px-4 py-2.5 text-sm hover:bg-accent/30 transition-colors"
 					>
-						<span className="w-6 shrink-0 text-xs text-muted-foreground">
+						<span className="w-5 shrink-0 text-center text-xs text-muted-foreground">
 							{i + 1}
 						</span>
-						<span className="font-serif text-lg min-w-[4rem]">
+						<span className="font-serif text-lg w-12 sm:w-16 shrink-0 text-center">
 							{word.hanzi}
 						</span>
-						<span className="text-muted-foreground min-w-[6rem]">
+						<span className="text-muted-foreground text-xs sm:text-sm min-w-[5rem] sm:min-w-[7rem]">
 							{word.pinyin}
 						</span>
 						<span className="flex-1 text-muted-foreground truncate hidden sm:block">
