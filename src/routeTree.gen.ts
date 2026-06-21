@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VocabularyRouteImport } from './routes/vocabulary'
 import { Route as PhoneticRouteImport } from './routes/phonetic'
 import { Route as LearnRouteImport } from './routes/learn'
 import { Route as DictionaryRouteImport } from './routes/dictionary'
@@ -21,6 +22,11 @@ import { Route as LearnIdLuyenVietRouteImport } from './routes/learn.$id.luyen-v
 import { Route as LearnIdKiemTraRouteImport } from './routes/learn.$id.kiem-tra'
 import { Route as LearnIdHocRouteImport } from './routes/learn.$id.hoc'
 
+const VocabularyRoute = VocabularyRouteImport.update({
+  id: '/vocabulary',
+  path: '/vocabulary',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PhoneticRoute = PhoneticRouteImport.update({
   id: '/phonetic',
   path: '/phonetic',
@@ -82,6 +88,7 @@ export interface FileRoutesByFullPath {
   '/dictionary': typeof DictionaryRoute
   '/learn': typeof LearnRouteWithChildren
   '/phonetic': typeof PhoneticRoute
+  '/vocabulary': typeof VocabularyRoute
   '/learn/$id': typeof LearnIdRouteWithChildren
   '/learn/': typeof LearnIndexRoute
   '/learn/$id/hoc': typeof LearnIdHocRoute
@@ -94,6 +101,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/dictionary': typeof DictionaryRoute
   '/phonetic': typeof PhoneticRoute
+  '/vocabulary': typeof VocabularyRoute
   '/learn/$id': typeof LearnIdRouteWithChildren
   '/learn': typeof LearnIndexRoute
   '/learn/$id/hoc': typeof LearnIdHocRoute
@@ -108,6 +116,7 @@ export interface FileRoutesById {
   '/dictionary': typeof DictionaryRoute
   '/learn': typeof LearnRouteWithChildren
   '/phonetic': typeof PhoneticRoute
+  '/vocabulary': typeof VocabularyRoute
   '/learn/$id': typeof LearnIdRouteWithChildren
   '/learn/': typeof LearnIndexRoute
   '/learn/$id/hoc': typeof LearnIdHocRoute
@@ -123,6 +132,7 @@ export interface FileRouteTypes {
     | '/dictionary'
     | '/learn'
     | '/phonetic'
+    | '/vocabulary'
     | '/learn/$id'
     | '/learn/'
     | '/learn/$id/hoc'
@@ -135,6 +145,7 @@ export interface FileRouteTypes {
     | '/'
     | '/dictionary'
     | '/phonetic'
+    | '/vocabulary'
     | '/learn/$id'
     | '/learn'
     | '/learn/$id/hoc'
@@ -148,6 +159,7 @@ export interface FileRouteTypes {
     | '/dictionary'
     | '/learn'
     | '/phonetic'
+    | '/vocabulary'
     | '/learn/$id'
     | '/learn/'
     | '/learn/$id/hoc'
@@ -162,10 +174,18 @@ export interface RootRouteChildren {
   DictionaryRoute: typeof DictionaryRoute
   LearnRoute: typeof LearnRouteWithChildren
   PhoneticRoute: typeof PhoneticRoute
+  VocabularyRoute: typeof VocabularyRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/vocabulary': {
+      id: '/vocabulary'
+      path: '/vocabulary'
+      fullPath: '/vocabulary'
+      preLoaderRoute: typeof VocabularyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/phonetic': {
       id: '/phonetic'
       path: '/phonetic'
@@ -282,6 +302,7 @@ const rootRouteChildren: RootRouteChildren = {
   DictionaryRoute: DictionaryRoute,
   LearnRoute: LearnRouteWithChildren,
   PhoneticRoute: PhoneticRoute,
+  VocabularyRoute: VocabularyRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

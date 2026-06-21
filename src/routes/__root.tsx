@@ -5,6 +5,7 @@ import {
 	useRouter,
 } from "@tanstack/react-router";
 import {
+	Bookmark,
 	BookOpen,
 	Menu,
 	Monitor,
@@ -163,6 +164,15 @@ function RootComponent() {
 												<BookOpen size={16} /> Học từ
 											</Button>
 										</SheetClose>
+										<SheetClose asChild>
+											<Button
+												variant="ghost"
+												className="justify-start gap-3"
+												onClick={() => navigate({ to: "/vocabulary" })}
+											>
+												<Bookmark size={16} /> Từ vựng
+											</Button>
+										</SheetClose>
 									</div>
 								</SheetContent>
 							</Sheet>
@@ -197,6 +207,16 @@ function RootComponent() {
 								>
 									<BookOpen size={14} />
 									<span>Học từ</span>
+								</Button>
+								<Button
+									variant="ghost"
+									size="sm"
+									onClick={() => navigate({ to: "/vocabulary" })}
+									className="gap-1.5"
+									aria-label="Từ vựng"
+								>
+									<Bookmark size={14} />
+									<span>Từ vựng</span>
 								</Button>
 							</nav>
 
