@@ -30,6 +30,30 @@ export function getUniqueChars(word: string): string[] {
 	return chars;
 }
 
+const POS_MAP: Record<string, string> = {
+	N: "Danh từ",
+	V: "Động từ",
+	ADJ: "Tính từ",
+	ADV: "Trạng từ",
+	PREP: "Giới từ",
+	CONJ: "Liên từ",
+	PRON: "Đại từ",
+	NUM: "Số từ",
+	M: "Lượng từ",
+	CLAS: "Lượng từ",
+	PART: "Trợ từ",
+	INTERJ: "Thán từ",
+	DET: "Định từ",
+	AUX: "Trợ động từ",
+	PREF: "Tiền tố",
+	SUFF: "Hậu tố",
+	IDIOM: "Thành ngữ",
+};
+
+export function translateKind(kind: string): string {
+	return POS_MAP[kind.toUpperCase()] || kind;
+}
+
 export function getKaraokeTokens(
 	text: string,
 ): { w: string; isChar: boolean }[] {

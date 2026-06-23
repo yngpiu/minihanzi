@@ -18,6 +18,7 @@ import {
 	getImageUrl,
 	getKaraokeTokens,
 	getUniqueChars,
+	translateKind,
 } from "@/services/utils";
 import { AIPanel } from "./AIPanel";
 import { ExItem } from "./ExItem";
@@ -237,6 +238,11 @@ function WordEntryImpl({ word, onSearch }: Props) {
 						{content.length > 0 &&
 							content.map((c, ci) => (
 								<div key={ci} className="space-y-3">
+									{c.kind && (
+										<p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
+											{translateKind(c.kind)}
+										</p>
+									)}
 									{(c.means || []).map((m, mi) => (
 										<div key={mi} className="flex gap-3">
 											<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
