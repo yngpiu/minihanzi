@@ -12,17 +12,19 @@ import {
 	SelectValue,
 } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { DecompositionTree } from "@/components/vocabulary/DecompositionTree";
 import { useChatGPT, useKanjiSearch } from "@/hooks/queries";
+import { useDictionaryLookup } from "@/hooks/useDictionaryLookup";
 import type { WordResult } from "@/services/types";
 import {
 	getImageUrl,
 	getKaraokeTokens,
 	getUniqueChars,
-	translateKind,
 } from "@/services/utils";
 import { AIPanel } from "./AIPanel";
 import { ExItem } from "./ExItem";
 import { KanjiTile } from "./KanjiTile";
+import { MeaningGroup } from "./MeaningGroup";
 
 interface Props {
 	word: WordResult;
@@ -32,8 +34,13 @@ interface Props {
 function WordEntryImpl({ word, onSearch }: Props) {
 	const chars = word.word ? getUniqueChars(word.word) : [];
 	const tokens = word.word ? getKaraokeTokens(word.word) : [];
+	const isSingleChar = chars.length === 1;
 
 	const { data: kanjiData, isLoading: kanjiLoading } = useKanjiSearch(chars);
+	const { charInfo, isLoading: charLoading } = useDictionaryLookup(
+		word.word,
+		isSingleChar,
+	);
 	const chatGptQuery = useChatGPT(word.word, word.pinyin);
 	const hasAiData =
 		chatGptQuery.isLoading ||
@@ -182,6 +189,42 @@ function WordEntryImpl({ word, onSearch }: Props) {
 				</div>
 			</CardHeader>
 
+			{charInfo && !charLoading && (
+				<CardContent className="border-t pt-4">
+					<div className="rounded-xl border bg-gradient-to-br from-card to-muted/20 p-4 space-y-3">
+						<div className="flex items-start gap-4">
+							<div className="flex size-14 shrink-0 items-center justify-center rounded-xl border-2 border-primary/20 bg-primary/[0.04] text-3xl font-serif shadow-sm">
+								{word.word}
+							</div>
+
+							<div className="flex-1 min-w-0 space-y-1.5">
+								{charInfo.radical && (
+									<div className="flex items-center gap-2">
+										<span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">
+											Bộ thủ
+										</span>
+										<span className="inline-flex items-center justify-center size-7 rounded border bg-background text-base font-serif">
+											{charInfo.radical}
+										</span>
+									</div>
+								)}
+								{charInfo.definition && (
+									<p className="text-xs text-muted-foreground italic leading-relaxed">
+										{charInfo.definition}
+									</p>
+								)}
+							</div>
+						</div>
+
+						{charInfo.decomposition && (
+							<div className="flex justify-center pt-2 border-t">
+								<DecompositionTree decomposition={charInfo.decomposition} />
+							</div>
+						)}
+					</div>
+				</CardContent>
+			)}
+
 			<CardContent>
 				<Tabs value={activeTab} onValueChange={setActiveTab}>
 					<div className="md:hidden mb-4">
@@ -224,7 +267,7 @@ function WordEntryImpl({ word, onSearch }: Props) {
 						))}
 					</TabsList>
 
-					<TabsContent value="meaning" className="mt-0 space-y-4">
+					<TabsContent value="meaning" className="mt-0 space-y-6">
 						{means.length > 0 && content.length === 0 && (
 							<div className="flex flex-wrap gap-1.5">
 								{means.map((m) => (
@@ -235,39 +278,15 @@ function WordEntryImpl({ word, onSearch }: Props) {
 							</div>
 						)}
 
-						{content.length > 0 &&
-							content.map((c, ci) => (
-								<div key={ci} className="space-y-3">
-									{c.kind && (
-										<p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">
-											{translateKind(c.kind)}
-										</p>
-									)}
-									{(c.means || []).map((m, mi) => (
-										<div key={mi} className="flex gap-3">
-											<span className="flex size-6 shrink-0 items-center justify-center rounded-full bg-muted text-xs font-medium text-muted-foreground">
-												{mi + 1}
-											</span>
-											<div className="space-y-1 min-w-0 flex-1">
-												<p className="text-sm font-medium">{m.mean}</p>
-												{m.explain && (
-													<p className="text-xs text-muted-foreground">
-														{m.explain}
-													</p>
-												)}
-
-												{(m.examples || []).slice(0, 3).length > 0 && (
-													<div className="space-y-2 pt-1">
-														{(m.examples || []).slice(0, 3).map((ex, ei) => (
-															<ExItem key={ei} ex={ex} />
-														))}
-													</div>
-												)}
-											</div>
-										</div>
-									))}
-								</div>
-							))}
+						{content.length > 0 && (
+							<div className="divide-y">
+								{content.map((c, ci) => (
+									<div key={ci} className={ci > 0 ? "pt-4" : ""}>
+										<MeaningGroup kind={c.kind} means={c.means} />
+									</div>
+								))}
+							</div>
+						)}
 					</TabsContent>
 
 					<TabsContent value="grammar" className="mt-0 space-y-3">
@@ -296,10 +315,7 @@ function WordEntryImpl({ word, onSearch }: Props) {
 					</TabsContent>
 
 					<TabsContent value="compound" className="mt-0 space-y-3">
-						<div className="space-y-1.5">
-							<p className="text-xs font-medium text-muted-foreground">
-								Từ ghép
-							</p>
+						{compounds.length > 0 && (
 							<div className="flex flex-wrap gap-1.5">
 								{compounds.map((c) => (
 									<Button
@@ -312,7 +328,7 @@ function WordEntryImpl({ word, onSearch }: Props) {
 									</Button>
 								))}
 							</div>
-						</div>
+						)}
 					</TabsContent>
 
 					<TabsContent value="synoanto" className="mt-0 space-y-4">

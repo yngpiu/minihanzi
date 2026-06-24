@@ -1,5 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { BookOpen, GraduationCap, Search, Shuffle } from "lucide-react";
+import {
+	BookMarked,
+	BookOpen,
+	GraduationCap,
+	Search,
+	Shuffle,
+} from "lucide-react";
 import { useCallback, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -90,7 +96,7 @@ function Dashboard() {
 
 			<section>
 				<h2 className="text-lg font-semibold mb-3">Bắt đầu</h2>
-				<div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+				<div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
 					<ActionCard
 						label="Học từ"
 						desc="Duyệt bộ từ vựng"
@@ -108,6 +114,12 @@ function Dashboard() {
 						desc="Tra cứu Hán-Việt"
 						icon={Search}
 						onClick={() => navigate({ to: "/dictionary" })}
+					/>
+					<ActionCard
+						label="Bộ thủ"
+						desc="50 bộ thủ cơ bản"
+						icon={BookMarked}
+						onClick={() => navigate({ to: "/bo-thu" })}
 					/>
 				</div>
 			</section>

@@ -10,9 +10,10 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import type {
+	KindGroup,
 	VocabCompound,
-	VocabExample,
 } from "@/lib/supabase/vocabulary-custom";
+import { KindGroupSection } from "./KindGroupSection";
 
 interface Props {
 	open: boolean;
@@ -21,12 +22,8 @@ interface Props {
 	existingCompounds: VocabCompound[];
 }
 
-function emptyExample(): VocabExample {
-	return { hanzi: "", pinyin: "", meaning: "" };
-}
-
 function emptyCompound(): VocabCompound {
-	return { hanzi: "", pinyin: "", meaning: "", examples: [emptyExample()] };
+	return { hanzi: "", pinyin: "", kind_groups: [] };
 }
 
 export function CompoundFormDialog({
@@ -40,11 +37,14 @@ export function CompoundFormDialog({
 
 	useEffect(() => {
 		if (open) {
+			const compounds = existingCompounds ?? [];
 			setCompounds(
-				existingCompounds.length > 0
-					? existingCompounds.map((c) => ({
-							...c,
-							examples: c.examples.length > 0 ? c.examples : [emptyExample()],
+				compounds.length > 0
+					? compounds.map((c) => ({
+							hanzi: c.hanzi,
+							pinyin: c.pinyin,
+							kind_groups:
+								c.kind_groups && c.kind_groups.length > 0 ? c.kind_groups : [],
 						}))
 					: [emptyCompound()],
 			);
@@ -61,7 +61,7 @@ export function CompoundFormDialog({
 
 	function updateCompound(
 		idx: number,
-		field: keyof VocabCompound,
+		field: "hanzi" | "pinyin",
 		value: string,
 	) {
 		setCompounds((prev) =>
@@ -69,44 +69,9 @@ export function CompoundFormDialog({
 		);
 	}
 
-	function addExample(cIdx: number) {
+	function updateKindGroups(idx: number, kind_groups: KindGroup[]) {
 		setCompounds((prev) =>
-			prev.map((c, i) =>
-				i === cIdx ? { ...c, examples: [...c.examples, emptyExample()] } : c,
-			),
-		);
-	}
-
-	function removeExample(cIdx: number, eIdx: number) {
-		setCompounds((prev) =>
-			prev.map((c, i) =>
-				i === cIdx
-					? {
-							...c,
-							examples: c.examples.filter((_, ei) => ei !== eIdx),
-						}
-					: c,
-			),
-		);
-	}
-
-	function updateExample(
-		cIdx: number,
-		eIdx: number,
-		field: keyof VocabExample,
-		value: string,
-	) {
-		setCompounds((prev) =>
-			prev.map((c, i) =>
-				i === cIdx
-					? {
-							...c,
-							examples: c.examples.map((ex, ei) =>
-								ei === eIdx ? { ...ex, [field]: value } : ex,
-							),
-						}
-					: c,
-			),
+			prev.map((c, i) => (i === idx ? { ...c, kind_groups } : c)),
 		);
 	}
 
@@ -114,7 +79,24 @@ export function CompoundFormDialog({
 		e.preventDefault();
 		setSubmitting(true);
 		try {
-			const valid = compounds.filter((c) => c.hanzi.trim());
+			const valid = compounds
+				.filter((c) => c.hanzi.trim())
+				.map((c) => ({
+					...c,
+					kind_groups: c.kind_groups
+						.map((g) => ({
+							...g,
+							means: g.means
+								.filter((m) => m.meaning.trim())
+								.map((m) => ({
+									...m,
+									examples: m.examples.filter(
+										(ex) => ex.hanzi.trim() || ex.meaning.trim(),
+									),
+								})),
+						}))
+						.filter((g) => g.means.length > 0),
+				}));
 			await onSave(valid);
 			onOpenChange(false);
 		} finally {
@@ -124,16 +106,16 @@ export function CompoundFormDialog({
 
 	return (
 		<Dialog open={open} onOpenChange={onOpenChange}>
-			<DialogContent className="max-w-2xl max-h-[90vh]">
+			<DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
 				<DialogHeader>
 					<DialogTitle>Quản lý từ ghép</DialogTitle>
 				</DialogHeader>
-				<form
-					onSubmit={handleSubmit}
-					className="space-y-4 overflow-y-auto pr-1"
-				>
+				<form onSubmit={handleSubmit} className="space-y-4">
 					{compounds.map((comp, ci) => (
-						<div key={ci} className="rounded-lg border p-3 space-y-3 relative">
+						<div
+							key={ci}
+							className="rounded-xl border bg-card p-4 space-y-4 relative"
+						>
 							{compounds.length > 1 && (
 								<Button
 									type="button"
@@ -146,7 +128,7 @@ export function CompoundFormDialog({
 								</Button>
 							)}
 
-							<div className="grid grid-cols-3 gap-2">
+							<div className="grid grid-cols-2 gap-3">
 								<div className="space-y-1.5">
 									<Label className="text-xs text-muted-foreground">
 										Từ ghép {ci + 1}
@@ -156,7 +138,7 @@ export function CompoundFormDialog({
 										onChange={(e) =>
 											updateCompound(ci, "hanzi", e.target.value)
 										}
-										placeholder="vd: 好吃"
+										placeholder="vd: 友好"
 										className="font-kai"
 									/>
 								</div>
@@ -169,78 +151,15 @@ export function CompoundFormDialog({
 										onChange={(e) =>
 											updateCompound(ci, "pinyin", e.target.value)
 										}
-										placeholder="vh: hǎo chī"
-									/>
-								</div>
-								<div className="space-y-1.5">
-									<Label className="text-xs text-muted-foreground">Nghĩa</Label>
-									<Input
-										value={comp.meaning}
-										onChange={(e) =>
-											updateCompound(ci, "meaning", e.target.value)
-										}
-										placeholder="vd: ngon"
+										placeholder="vd: yǒuhǎo"
 									/>
 								</div>
 							</div>
 
-							<div className="space-y-2 border-t pt-2">
-								<div className="flex items-center justify-between">
-									<Label className="text-xs text-muted-foreground">Ví dụ</Label>
-									<Button
-										type="button"
-										variant="ghost"
-										size="sm"
-										onClick={() => addExample(ci)}
-										className="h-7 text-xs"
-									>
-										<Plus className="size-3 mr-1" />
-										Thêm ví dụ
-									</Button>
-								</div>
-
-								{comp.examples.map((ex, ei) => (
-									<div key={ei} className="flex items-start gap-2">
-										<div className="grid grid-cols-3 gap-2 flex-1">
-											<Input
-												value={ex.hanzi}
-												onChange={(e) =>
-													updateExample(ci, ei, "hanzi", e.target.value)
-												}
-												placeholder="Câu Hán"
-												className="font-kai text-sm"
-											/>
-											<Input
-												value={ex.pinyin}
-												onChange={(e) =>
-													updateExample(ci, ei, "pinyin", e.target.value)
-												}
-												placeholder="Pinyin"
-												className="text-sm"
-											/>
-											<Input
-												value={ex.meaning}
-												onChange={(e) =>
-													updateExample(ci, ei, "meaning", e.target.value)
-												}
-												placeholder="Nghĩa"
-												className="text-sm"
-											/>
-										</div>
-										{comp.examples.length > 1 && (
-											<Button
-												type="button"
-												variant="ghost"
-												size="icon"
-												className="size-8 shrink-0 text-muted-foreground hover:text-destructive"
-												onClick={() => removeExample(ci, ei)}
-											>
-												<Trash2 className="size-3.5" />
-											</Button>
-										)}
-									</div>
-								))}
-							</div>
+							<KindGroupSection
+								kindGroups={comp.kind_groups}
+								onChange={(groups) => updateKindGroups(ci, groups)}
+							/>
 						</div>
 					))}
 
@@ -255,7 +174,7 @@ export function CompoundFormDialog({
 						Thêm từ ghép
 					</Button>
 
-					<div className="flex justify-end gap-2 pt-2">
+					<div className="flex justify-end gap-2 pt-2 border-t">
 						<Button
 							type="button"
 							variant="outline"

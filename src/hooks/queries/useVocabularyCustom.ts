@@ -23,7 +23,7 @@ export function useCreateEntry() {
 	const qc = useQueryClient();
 	return useMutation({
 		mutationFn: (
-			entry: Pick<VocabEntry, "hanzi" | "pinyin" | "meanings" | "compounds">,
+			entry: Pick<VocabEntry, "hanzi" | "pinyin" | "kind_groups" | "compounds">,
 		) => createEntry(entry),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: vocabularyCustomKeys.all });
@@ -38,7 +38,7 @@ export function useUpdateEntry() {
 			id,
 			...updates
 		}: { id: number } & Partial<
-			Pick<VocabEntry, "hanzi" | "pinyin" | "meanings" | "compounds">
+			Pick<VocabEntry, "hanzi" | "pinyin" | "kind_groups" | "compounds">
 		>) => updateEntry(id, updates),
 		onSuccess: () => {
 			qc.invalidateQueries({ queryKey: vocabularyCustomKeys.all });

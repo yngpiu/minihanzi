@@ -14,7 +14,10 @@ import {
 	useUpdateEntry,
 	useVocabularyEntries,
 } from "@/hooks/queries/useVocabularyCustom";
-import type { VocabEntry } from "@/lib/supabase/vocabulary-custom";
+import type {
+	VocabCompound,
+	VocabEntry,
+} from "@/lib/supabase/vocabulary-custom";
 
 export const Route = createFileRoute("/vocabulary")({
 	component: VocabularyPage,
@@ -41,7 +44,9 @@ function VocabularyPage() {
 			(e) =>
 				e.hanzi.toLowerCase().includes(q) ||
 				e.pinyin.toLowerCase().includes(q) ||
-				e.meanings.some((m) => m.meaning.toLowerCase().includes(q)),
+				(e.kind_groups ?? []).some((g) =>
+					(g.means ?? []).some((m) => m.meaning.toLowerCase().includes(q)),
+				),
 		);
 	}, [entries, search]);
 
@@ -63,19 +68,20 @@ function VocabularyPage() {
 	async function handleWordSubmit(data: {
 		hanzi: string;
 		pinyin: string;
-		meanings: {
-			meaning: string;
-			example: { hanzi: string; pinyin: string; meaning: string };
-		}[];
+		kind_groups: VocabEntry["kind_groups"];
 	}) {
 		if (editingEntry) {
 			await updateMutation.mutateAsync({
 				id: editingEntry.id,
-				...data,
+				hanzi: data.hanzi,
+				pinyin: data.pinyin,
+				kind_groups: data.kind_groups,
 			});
 		} else {
 			await createMutation.mutateAsync({
-				...data,
+				hanzi: data.hanzi,
+				pinyin: data.pinyin,
+				kind_groups: data.kind_groups,
 				compounds: [],
 			});
 		}
@@ -91,7 +97,7 @@ function VocabularyPage() {
 		setCompoundDialogOpen(true);
 	}
 
-	async function handleCompoundsSave(compounds: VocabEntry["compounds"]) {
+	async function handleCompoundsSave(compounds: VocabCompound[]) {
 		if (!compoundTarget) return;
 		await updateMutation.mutateAsync({
 			id: compoundTarget.id,
